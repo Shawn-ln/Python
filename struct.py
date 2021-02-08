@@ -73,11 +73,11 @@ list.copy()	返回列表的浅复制，等于a[:]。
 境中生成出来的列表。如果希望表达式推导出一个元组，就必须使用括号。
 这里我们将列表中每个数值乘三，获得一个新的列表：
 """
-vec = [2, 4, 6]
-print([3 * x for x in vec])
-print([[x, x**2] for x in vec])
-print([[x, x*3] for x in vec if x > 3])
-print([[x, x*3] for x in vec if x < 3])
+# vec = [2, 4, 6]
+# print([3 * x for x in vec])
+# print([[x, x**2] for x in vec])
+# print([[x, x*3] for x in vec if x > 3])
+# print([[x, x*3] for x in vec if x < 3])
 # -----------------------------------------------
 """
 这里我们对序列里每一个元素逐个调用某方法：
