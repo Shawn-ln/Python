@@ -1,5 +1,8 @@
 import os
-main = "echo hahaha"
-print(os.system(main))
+os.chdir('C:\\WinTest\\FFT\\LEDTest')
+main = 'LEDTest.exe'
 r_v = os.system(main)
 print(r_v)
+
+import head
+a = Head()
