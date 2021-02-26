@@ -1,85 +1,115 @@
+# Coding by LiXiao
+# Datatime:2/26/2021 11:37 AM
+# Filename:test.py
+# Toolby: PyCharm
+import os
 import support
 import time   # 测试时拿掉
 
 # 开头模板信息
-dict = {
+dictor = {
     'FailRetry':'0',
     'FailRetrytimes':'10',
     'UPLIMIT':'9999.900',
     'LOWLIMIT':'-9999.900',
     'RUNITEM':'UpdatePatch',
 }
+
+pdtkey = (
+    'PUKM-WUQ5-851W-09U6-TQ0W',
+    'PUKM-QP10-9IP1-808W-QRE6',
+    'PUKM-T9EP-R9IE-5RPE-8U0O',
+    'PUKM-QQIR-IOPQ-6QTQ-09P9',
+    'PUKM-00I9-EPOE-OQ8O-I0II',
+    'PUKM-9YWO-Q8RI-P969-TIUE',
+    'PUKM-QI0P-E558-YI1R-W8T5',
+    'PUKM-QP10-9IP1-808W-QRE6',
+    'PUKM-WUQ5-851W-09U6-TQ0W',
+    'PUKM-WTRY-165I-POOU-WR8P',
+    'PUKM-YR0I-E6PY-1T9P-8UP0'
+)
+
 try:
-    MB_SN = support.getSN()
+    # 测试开始时间
+    StartTime = support.titles(RUNITEM=dictor['RUNITEM'], stage='start')
+    for i in dictor:
+        print(i + ' : ' + dictor[i])
 
-    StartTime = support.titles(RUNITEM = dict['RUNITEM'], stage = 'start')
-    for i in dict:
-        print(i + ' : ' + dict[i])
+    # 脚本路径
+    currentPath = os.getcwd()
+    # currentPath = r'C:\WinTest\Work'
+    # print(currentPath)
 
-    # 测试正文
-    for n in range(1, 200):
-        # 测试内容和结果
-        print('测试正文')
-        if dict['FailRetry'] == '5':
-            result = 'pass'
-        else:
-            result = 'fail'
-        # result = 'fail'
+    # 读取主板写入的mbsn
+    MB_SN = support.getMBSN()
 
-        # 判断测试结果
-        if result == 'fail':
-            if support.judge(FailRetry=dict['FailRetry'], FailRetrytimes=dict['FailRetrytimes']):
-                dict['FailRetry'] = str(int(dict['FailRetry']) + 1)
-                print('测试循环次数：' + dict['FailRetry'], '，测试结果：fail！！！')
-                continue
+    # 判断是否有测试pass的log记录
+    if support.passlog(dictor['RUNITEM']):
+        # creatResult
+        support.SyncTime()
+        support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
+    else:
+        # disableIPV6
+        support.disableIPV6()
+        # 运行工具注册码
+        for i in pdtkey:
+            support.ptd(i)
+        # 平板机种需要设定
+        # support.padsetting()
+        # 设置时区，同步时间
+        support.SyncTime()
+        # 测试正文
+        for n in range(1, 200):
+            # 测试内容和结果
 
-            TestTimes = support.gettesttime(start=StartTime)
-            print('测试用时:', TestTimes)
-            support.setinfo(RUNITEM=dict['RUNITEM'], SN=MB_SN, UPLIMIT=dict['UPLIMIT'],
-                            LOWLIMIT=dict['LOWLIMIT'], Result='F', NUM='0',
-                            LOGINFO='UpdatePatch Fail', Starttime=StartTime, TestTime=TestTimes)
-            print('测试循环次数:', n, '，测试结果：fail！！！！')
-            break
+            print('测试正文')
+            if dictor['FailRetry'] == '5':
+                result = 'pass'
+            else:
+                result = 'fail'
+            # result = 'fail'
 
-        if result == 'pass':
-            print('测试循环次数:', n, '，测试结果：pass！！！')
-            time.sleep(3)    # 测试时拿掉
-            print('测试SN:', MB_SN)
-            TestTimes = support.gettesttime(start=StartTime)
-            print('测试用时:', TestTimes)
-            support.setinfo(RUNITEM=dict['RUNITEM'], SN=MB_SN, UPLIMIT=dict['UPLIMIT'],
-                            LOWLIMIT=dict['LOWLIMIT'], Result='P', NUM='1',
-                            LOGINFO='UpdatePatch Success', Starttime=StartTime, TestTime=TestTimes)
-            break
+            # 判断测试结果
+            if result == 'fail':
+                if support.judge(FailRetry=dictor['FailRetry'], FailRetrytimes=dictor['FailRetrytimes']):
+                    dictor['FailRetry'] = str(int(dictor['FailRetry']) + 1)
+                    print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
+                    continue
 
-    print('无测试结果！！！')
+                # 计算测试时间
+                TestTimes = support.gettesttime(start=StartTime)
+                print('测试用时:', TestTimes)
+                # creatResult
+                support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
+                # setinfo
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
+                                LOWLIMIT=dictor['LOWLIMIT'], Result='F', NUM='0',
+                                LOGINFO='UpdatePatch Fail', Starttime=StartTime, TestTime=TestTimes)
+                print('测试循环次数:', n, '，测试结果：fail！！！！')
+                break
+
+            if result == 'pass':
+                print('测试循环次数:', n, '，测试结果：pass！！！')
+                time.sleep(3)    # 测试时拿掉
+                print('测试SN:', MB_SN)
+                # 计算测试时间
+                TestTimes = support.gettesttime(start=StartTime)
+                print('测试用时:', TestTimes)
+                # creatResult
+                support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
+                # setinfo
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
+                                LOWLIMIT=dictor['LOWLIMIT'], Result='P', NUM='1',
+                                LOGINFO='UpdatePatch Success', Starttime=StartTime, TestTime=TestTimes)
+                break
+
+            else:
+                print('无测试结果！！！')
+
 
 except AttributeError as e:
     print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
 
-"""
-python中时间日期格式化符号：
-%y 两位数的年份表示（00-99）
-%Y 四位数的年份表示（000-9999）
-%m 月份（01-12）
-%d 月内中的一天（0-31）
-%H 24小时制小时数（0-23）
-%I 12小时制小时数（01-12）
-%M 分钟数（00=59）
-%S 秒（00-59）
-%a 本地简化星期名称
-%A 本地完整星期名称
-%b 本地简化的月份名称
-%B 本地完整的月份名称
-%c 本地相应的日期表示和时间表示
-%j 年内的一天（001-366）
-%p 本地A.M.或P.M.的等价符
-%U 一年中的星期数（00-53）星期天为星期的开始
-%w 星期（0-6），星期天为星期的开始
-%W 一年中的星期数（00-53）星期一为星期的开始
-%x 本地相应的日期表示
-%X 本地相应的时间表示
-%Z 当前时区的名称
-%% %号本身
-"""
+except Exception as e:
+    print(e)
