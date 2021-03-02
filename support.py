@@ -9,6 +9,85 @@ import datetime
 from shutil import copyfile
 
 
+def test(tool_path, result_log_name, check_item, instruct, check_data):
+    os.chdir(tool_path)
+    instruct1 = instruct
+    os.system(instruct1)
+    str = ''
+    with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
+        for line in f.readlines():
+            if check_item in line:
+                # 截取'param='后面的内容
+                str = re.sub(r'^.*=', '', line)
+                print(str)
+    if check_data == str:
+        return True
+    else:
+        return False
+        # ex = Exception('BIOS/EC版本信息检查失败，当前BIOS/EC版本：' + str + ', 目标BIOS/EC版本:' + check_data)
+        # # 抛出异常对象
+        # raise ex
+
+
+def message(Code):
+    if Code == '.':
+        ex = Exception('message() 参数Errorcode传递值为错误值！！！')
+        # 抛出异常对象
+        raise ex
+    else:
+        path = r'C:\WinTest\Messge'
+        os.chdir(path)
+        instruct1 = 'Messge.cmd ' + Code
+        os.system(instruct1)
+        return
+
+
+def get_csv_info(log_name, param):
+    os.chdir(r'C:\WinTest\HW\HWDATA')
+    with open(log_name, 'r', encoding='utf-8', newline='') as f:
+        for line in f.readlines():
+            if param in line:
+                strs = line
+                return strs
+
+    ex = Exception(param + "信息在" + log_name +"未找到！！！")
+    # 抛出异常对象
+    raise ex
+
+
+def get_response_info(param):
+    os.chdir(r'C:\WinTest\Tools')
+    logname = 'Response.bat'
+    with open(logname, 'r', encoding='utf-8', newline='') as f:
+        for line in f.readlines():
+            if param in line:
+                # 截取'param='后面的内容
+                str = re.sub(r'^.*=', '', line)
+                return str
+    return None
+    # ex = Exception(param + "信息在Response.bat未找到！！！")
+    # # 抛出异常对象
+    # raise ex
+
+
+def del_log(log_path):
+    res = os.path.exists(log_path)
+    if res:
+        os.remove(log_path)
+    return
+
+
+
+def MonitorAgent64(DatabaseServer, DatabaseName, system, station, step, RequestFilePath, SN):
+    path = r'C:\WinTest\Tools'
+    os.chdir(path)
+    with open(RequestFilePath, 'w', encoding='utf-8', newline='') as f:
+        f.write('MBSN=' + SN)
+    instruct1 = 'MonitorAgent64.exe %s %s %s %s %s %s' % (DatabaseServer, DatabaseName,
+                                                          system, station, step, RequestFilePath)
+    os.system(instruct1)
+
+
 def get_ini_info(param):
     os.chdir(r'C:\WinTest')
     logname = 'Model_ini.BAT'
@@ -18,10 +97,9 @@ def get_ini_info(param):
                 # 截取'param='后面的内容
                 str = re.sub(r'^.*=', '', line)
                 return str
-            else:
-                ex = Exception("param信息在Model_ini.BAT未找到！！！")
-                # 抛出异常对象
-                raise ex
+    ex = Exception(param + "信息在Model_ini.BAT未找到！！！")
+    # 抛出异常对象
+    raise ex
 
 
 def gettesttime(start):
@@ -180,3 +258,15 @@ def passlog(RUNITEM):
     logpath = r'C:\WinTest\Log' + '\\' + RUNITEM + 'Pass.log'
     res = os.path.exists(logpath)
     return res
+
+
+def wrtDMI(var, vaule):
+    os.chdir(r'C:\WinTest\Tools')
+    instruct = 'EEPROM64.exe -s -%s -c "%s"' % (var, vaule)
+    print(instruct)
+    if os.system(instruct) == 0:
+        return
+    else:
+        ex = Exception(instruct + '，执行失败')
+        # 抛出异常对象
+        raise ex
