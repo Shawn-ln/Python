@@ -12,10 +12,6 @@ dictor = {
     'LOWLIMIT':'-9999.900',
     'RUNITEM':'WriteDMI',
     'Errorcode':'MBCF4',
-    'tool_path':'C:\WinTest\Tools',
-    'instruct':'call BiosVersion_x64.exe >BIOSVER.BAT',
-    'result_log_name':'BIOSVER.BAT',
-    'check_item':'BiosVersion',
     'DBS' : '172.24.249.12',    # DatabaseServer
     'DBN' : 'MESFA',            # DatabaseName
     'SYS' : 'NCBD',             # system
@@ -45,16 +41,14 @@ try:
     else:
         # 测试正文
         for n in range(1, 200):
-
             # 删除历史遗留测试log
             support.del_log(log_path=r'C:\WinTest\Tools\mbsn.txt')
             support.del_log(log_path=r'C:\WinTest\Tools\MB_SN.TXT')
-            # support.del_log(log_path=r'C:\WinTest\Tools\Response.bat')
-            # 测试内容和结果
+            support.del_log(log_path=r'C:\WinTest\Tools\Response.bat')
             # 获取 Response.bat
-            # res = support.MonitorAgent64(DatabaseServer=dictor['DBS'], DatabaseName=dictor['DBN'],
-            #                              system=dictor['SYS'], station=dictor['STAT'], step=dictor['STEP'],
-            #                              RequestFilePath=dictor['RFP'], SN=MB_SN)
+            support.MonitorAgent64(DatabaseServer=dictor['DBS'], DatabaseName=dictor['DBN'],
+                                   system=dictor['SYS'], station=dictor['STAT'], step=dictor['STEP'],
+                                   RequestFilePath=dictor['RFP'], SN=MB_SN)
             # Write DMI
             pn = support.get_response_info(param='SET SubSeries')
             fd = support.get_response_info(param='SET SubSeries')

@@ -8,7 +8,7 @@ import re
 import datetime
 from shutil import copyfile
 
-
+# Check Bios
 def test(tool_path, result_log_name, check_item, instruct, check_data):
     os.chdir(tool_path)
     instruct1 = instruct
@@ -18,8 +18,7 @@ def test(tool_path, result_log_name, check_item, instruct, check_data):
         for line in f.readlines():
             if check_item in line:
                 # 截取'param='后面的内容
-                str = re.sub(r'^.*=', '', line)
-                print(str)
+                str = re.sub(r'^.*=', '', line).strip()
     if check_data == str:
         return True
     else:
@@ -31,7 +30,7 @@ def test(tool_path, result_log_name, check_item, instruct, check_data):
 
 def message(Code):
     if Code == '.':
-        ex = Exception('message() 参数Errorcode传递值为错误值！！！')
+        ex = Exception('message() 参数Errorcode传递值为错误值(.)！！！')
         # 抛出异常对象
         raise ex
     else:
@@ -42,6 +41,21 @@ def message(Code):
         return
 
 
+def getMAC(MACID):
+    os.chdir(r'C:\WinTest\Tools')
+    del_log(log_path=r'C:\WinTest\Tools\WIFIBTMAC.BAT')
+    instruct = 'WirelessBT-Mac_x86.exe 0 >WIFIBTMAC.BAT'
+    os.system(instruct)
+    strs = '.'
+    with open('WIFIBTMAC.BAT', 'r', encoding='utf-8', newline='') as f:
+        for line in f.readlines():
+            if MACID in line:
+                strs = re.sub(r'^.*=', '', line).strip()
+                # print(strs)
+                return strs
+    return strs
+
+
 def get_csv_info(log_name, param):
     os.chdir(r'C:\WinTest\HW\HWDATA')
     with open(log_name, 'r', encoding='utf-8', newline='') as f:
@@ -49,7 +63,6 @@ def get_csv_info(log_name, param):
             if param in line:
                 strs = line.strip()
                 return strs
-
     ex = Exception(param + "信息在" + log_name +"未找到！！！")
     # 抛出异常对象
     raise ex
@@ -63,7 +76,7 @@ def get_response_info(param):
             if param in line:
                 # 截取'param='后面的内容
                 sts = re.sub(r'^.*=', '', line).rstrip()    # rstrip()—>right strip(),清除了右边末尾的空格
-                print(sts)
+                # print(sts)
                 return sts
     return None
     # ex = Exception(param + "信息在Response.bat未找到！！！")
@@ -84,8 +97,7 @@ def MonitorAgent64(DatabaseServer, DatabaseName, system, station, step, RequestF
     os.chdir(path)
     with open(RequestFilePath, 'w', encoding='utf-8', newline='') as f:
         f.write('MBSN=' + SN)
-    instruct1 = 'MonitorAgent64.exe %s %s %s %s %s %s' % (DatabaseServer, DatabaseName,
-                                                          system, station, step, RequestFilePath)
+    instruct1 = 'MonitorAgent64.exe %s %s %s %s %s %s' % (DatabaseServer, DatabaseName, system, station, step, RequestFilePath)
     os.system(instruct1)
 
 
@@ -303,3 +315,5 @@ def is_equal(a, b, c):
         return True
     else:
         return False
+
+

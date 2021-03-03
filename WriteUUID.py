@@ -1,6 +1,6 @@
 # Coding by LiXiao
-# Datatime:2/26/2021 5:37 PM
-# Filename:CheckBIOS.py
+# Datatime:3/3/2021 5:56 PM
+# Filename:WriteUUID.py
 # Toolby: PyCharm
 import os
 import support
@@ -11,15 +11,9 @@ dictor = {
     'FailRetrytimes':'10',
     'UPLIMIT':'9999.900',
     'LOWLIMIT':'-9999.900',
-    'RUNITEM':'CheckBIOS',
+    'RUNITEM':'WriteUUID',
     'Errorcode':'MBCF4',
-    'tool_path':'C:\WinTest\Tools',
-    'instruct':'call BiosVersion_x64.exe >BIOSVER.BAT',
-    'result_log_name':'BIOSVER.BAT',
-    'check_item':'BiosVersion',
-    'instruct1': 'call ECVersion_NB6067.exe',
-    'result_log_name1':'ECVersion_NB6067.BAT',
-    'check_item1':'EC_VER',
+    'tool_path':'C:\WinTest\Work'
 }
 
 try:
@@ -34,7 +28,7 @@ try:
     # print(currentPath)
 
     # 读取主板写入的mbsn
-    MB_SN = support.getMBSN()
+    MB_SN = support.getSN()
 
     # 判断是否有测试pass的log记录
     if support.passlog(dictor['RUNITEM']):
@@ -44,29 +38,46 @@ try:
         # 测试正文
         for n in range(1, 200):
             # 测试内容和结果
+            Y = StartTime[0:4]
+            print(Y)
+            M = StartTime[5:7]
+            print(M)
+            D = StartTime[8:10]
+            print(D)
+            WIFIMAC = support.getMAC(MACID='WirelessMAC')
+            BTMAC = support.getMAC(MACID='BluetoothMAC')
+            if len(WIFIMAC) == 12:
+                print('WIFIMAC:' + WIFIMAC)
+            else:
+                ex = Exception('WLAN_MAC地址长度错误，正确应为12码，实际' + str(len(WIFIMAC)) + '码请到设备管理器检查无线网卡和蓝牙是否能抓到，没被禁用，没黄标')
+                # 抛出异常对象
+                raise ex
+            if len(BTMAC) == 12:
+                print('BTMAC:' + BTMAC)
+            else:
+                ex = Exception('BT_MAC地址长度错误，正确应为12码，实际' + str(len(BTMAC)) + '码请到设备管理器检查无线网卡和蓝牙是否能抓到，没被禁用，没黄标')
+                # 抛出异常对象
+                raise ex
+            UUID_BTMAC = BTMAC[0:2] + ' ' + BTMAC[2:4] + ' ' + BTMAC[4:6] + ' ' + BTMAC[6:8] + ' ' + BTMAC[8:10] + ' ' + BTMAC[10:12]
+            UUID_WIFIMAC = WIFIMAC[2:4] + ' ' + WIFIMAC[0:2] + ' ' + WIFIMAC[6:8] + ' ' + WIFIMAC[4:6] + ' ' + WIFIMAC[8:10] + ' ' + WIFIMAC[10:12]
+            print(UUID_BTMAC)
+            print(UUID_WIFIMAC)
 
-            # 读取Model_ini.BAT中信息
-            BIOSver = support.get_ini_info(param='BIOSver')
-            print(BIOSver)
-            ECver = support.get_ini_info(param='ECver')
-            print(ECver)
+            UUIDW = D + ' ' + M + ' ' + Y[2:4] + ' ' + Y[0:2] + ' ' + UUID_WIFIMAC + ' ' + UUID_BTMAC
+            UUIDR = Y + M + D + '-' + WIFIMAC[0:4] + '-' + WIFIMAC[4:8] + '-' + WIFIMAC[8:12] + '-' + BTMAC
+            print(UUIDW)
+            print(UUIDR)
+
+
             print('测试正文')
-            chkbios = support.test(tool_path=dictor['tool_path'], result_log_name=dictor['result_log_name'],
-                         check_item=dictor['check_item'], instruct=dictor['instruct'],
-                         check_data=BIOSver)
-            chkec = support.test(tool_path=dictor['tool_path'], result_log_name=dictor['result_log_name1'],
-                         check_item=dictor['check_item1'], instruct=dictor['instruct1'],
-                         check_data=ECver)
             Errorcode = '.'
-            if chkbios:
-                if chkec:
-                    result = 'pass'
-                else:
+            result = '.'
+            if WIFIMAC == '.':
+                if BTMAC == '.':
                     Errorcode = 'HS946'
                     result = 'fail'
             else:
-                Errorcode = 'MBCF4'
-                result = 'fail'
+                result = 'pass'
 
             # 判断测试结果
             if result == 'fail':
