@@ -7,7 +7,7 @@ import support
 
 dictor = {
     'FailRetry':'0',
-    'FailRetrytimes':'10',
+    'FailRetrytimes':'3',
     'UPLIMIT':'9999.900',
     'LOWLIMIT':'-9999.900',
     'RUNITEM':'WriteDMI',
@@ -56,20 +56,15 @@ try:
             #                              system=dictor['SYS'], station=dictor['STAT'], step=dictor['STEP'],
             #                              RequestFilePath=dictor['RFP'], SN=MB_SN)
             # Write DMI
-            pn = support.get_response_info(param='SET SubSeries')[0:25]
-            print(pn)
-            mt = support.get_response_info(param='SET Cust_PN_1')[0:10]
-            print(mt)
-            ln = support.get_response_info(param='SET SN')[0:8]
-            print(ln)
-            KB_PN = support.get_response_info(param='SET KBPN')[0:13]
-            print(KB_PN)
+            pn = support.get_response_info(param='SET SubSeries')
+            fd = support.get_response_info(param='SET SubSeries')
+            mt = support.get_response_info(param='SET Cust_PN_1')
+            ln = support.get_response_info(param='SET SN')
+            KB_PN = support.get_response_info(param='SET KBPN')
             KBID = support.get_csv_info(log_name='KB.CSV', param=KB_PN)[17:18]
-            print(KBID)
-            osp = support.get_response_info(param='SET MTM_DPKPN')[0:10]
-            print(osp)
-            oa3keyid = support.get_response_info(param='SET ProductkeyID')[0:13]
-            print(oa3keyid)
+            osp = support.get_response_info(param='SET MTM_DPKPN')
+            oa3keyid = support.get_response_info(param='SET ProductkeyID')
+
             support.wrtDMI(var='pn', vaule=pn)
             support.wrtDMI(var='fd', vaule=pn)
             support.wrtDMI(var='mt', vaule=mt)
@@ -81,18 +76,42 @@ try:
             support.wrtDMI(var='osp', vaule=osp)
             support.wrtDMI(var='oa3keyid', vaule=oa3keyid)
 
-            Errorcode = '.'
-            chkbios = 1
-            chkec = 1
-            if chkbios:
-                if chkec:
+            # Read & Check DMI
+            res = ['fail'] * 10
+            OA3Key = support.getDMI(var='oa3keyid', filaname='OA3Key.txt')
+            res[0] = support.is_equal(a=oa3keyid, b=OA3Key, c='OA3Key')
+            ProductName = support.getDMI(var='pn', filaname='Product_Name.txt')
+            res[1] = support.is_equal(a=pn, b=ProductName, c='ProductName')
+            MTMPN = support.getDMI(var='mt', filaname='MTMPN.txt')
+            res[2] = support.is_equal(a=mt, b=MTMPN, c='MTMPN')
+            LenovoSN = support.getDMI(var='ln', filaname='LenovoSN.txt')
+            res[3] = support.is_equal(a=ln, b=LenovoSN, c='LenovoSN')
+            Brandtype = support.getDMI(var='bt', filaname='Brandtype.txt')
+            res[4] = support.is_equal(a='C', b=Brandtype, c='Brandtype')
+            FamilyName = support.getDMI(var='fd', filaname='FamilyName.txt')
+            res[5] = support.is_equal(a=fd, b=FamilyName, c='FamilyName')
+            ProjectName = support.getDMI(var='pjn', filaname='ProjectName.txt')
+            res[6] = support.is_equal(a='LNVNB161216', b=ProjectName, c='ProjectName')
+            OS_Descriptor = support.getDMI(var='oss', filaname='OS_Descriptor.txt')
+            res[7] = support.is_equal(a='WIN', b=OS_Descriptor, c='OS_Descriptor')
+            Keyboard_ID = support.getDMI(var='kd', filaname='Keyboard_ID.txt')
+            res[8] = support.is_equal(a=KBID, b=Keyboard_ID, c='Keyboard_ID')
+            DPKPN = support.getDMI(var='osp', filaname='DPKPN.txt')
+            res[9] = support.is_equal(a=osp, b=DPKPN, c='DPKPN')
+            result = ''
+            Errorcode = ''
+            for x in res:
+                if x == False:
+                    result = 'fail'
+                    Errorcode = 'HS910'
+                    break
+                elif x == True:
                     result = 'pass'
                 else:
-                    Errorcode = 'HS946'
-                    result = 'fail'
-            else:
-                Errorcode = 'MBCF4'
-                result = 'fail'
+                    ex = Exception('DMI Check 结果异常！！！', x)
+                    # 抛出异常对象
+                    raise ex
+
 
             # 判断测试结果
             if result == 'fail':

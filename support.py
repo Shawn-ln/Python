@@ -47,7 +47,7 @@ def get_csv_info(log_name, param):
     with open(log_name, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if param in line:
-                strs = line
+                strs = line.strip()
                 return strs
 
     ex = Exception(param + "信息在" + log_name +"未找到！！！")
@@ -62,8 +62,9 @@ def get_response_info(param):
         for line in f.readlines():
             if param in line:
                 # 截取'param='后面的内容
-                str = re.sub(r'^.*=', '', line)
-                return str
+                sts = re.sub(r'^.*=', '', line).rstrip()    # rstrip()—>right strip(),清除了右边末尾的空格
+                print(sts)
+                return sts
     return None
     # ex = Exception(param + "信息在Response.bat未找到！！！")
     # # 抛出异常对象
@@ -95,7 +96,7 @@ def get_ini_info(param):
         for line in f.readlines():
             if param in line:
                 # 截取'param='后面的内容
-                str = re.sub(r'^.*=', '', line)
+                str = re.sub(r'^.*=', '', line).strip()
                 return str
     ex = Exception(param + "信息在Model_ini.BAT未找到！！！")
     # 抛出异常对象
@@ -270,3 +271,35 @@ def wrtDMI(var, vaule):
         ex = Exception(instruct + '，执行失败')
         # 抛出异常对象
         raise ex
+
+
+def getDMI(var, filaname):
+    os.chdir(r'C:\WinTest\Tools')
+    if os.path.exists(filaname):
+        os.remove(filaname)
+    instruct = 'EEPROM64.exe -g -%s -f %s' % (var, filaname)
+    print(instruct)
+    res = os.system(instruct)
+    if res == 0:
+        strs = '.'
+        with open(filaname, 'r', encoding='utf-8', newline='') as f:
+            for line in f.readlines():
+                strs = line.strip()
+        if strs == '.':
+            ex = Exception(var + ' 变量信息获取失败！！！')
+            # 抛出异常对象
+            raise ex
+        else:
+            return strs
+    else:
+        ex = Exception('"' + instruct + '"' + ' 执行失败！！！')
+        # 抛出异常对象
+        raise ex
+
+
+def is_equal(a, b, c):
+    if a == b:
+        print(c, ' Check Pass')
+        return True
+    else:
+        return False
