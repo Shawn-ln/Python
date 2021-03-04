@@ -229,21 +229,24 @@ def creatResult(Fixed, ItemName, Result, ItemTag):
     instruct = 'tasklist | find "TestStand.exe"'
     rea = os.system(instruct)
     getID = 'sdtCheckResult.exe /a>' + ItemName + '.txt'
+    # print(getID)
     os.system(getID)
     logname = ItemName + '.txt'
+    # print(logname)
+    str = '.'
     with open(logname, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if ItemName in line:
                 str = line
                 # print(str)
-    os.remove(logname)
+    # os.remove(logname)
     ItemID1 = re.sub(r'\|.*$', '', str)
     ItemID = re.sub(r'\D', '', ItemID1)
     # print(ItemID)
 
     if rea == 0:
         para = "%s %s %s %d %s %s" % ("sdtCreateResult.exe", Fixed, ItemName, Result, ItemID, ItemTag)
-        # print(para)
+        print(para)
         os.system(para)
         res = ''
         if Result == 1:
@@ -276,7 +279,6 @@ def passlog(RUNITEM):
 def wrtDMI(var, vaule):
     os.chdir(r'C:\WinTest\Tools')
     instruct = 'EEPROM64.exe -s -%s -c "%s"' % (var, vaule)
-    print(instruct)
     if os.system(instruct) == 0:
         return
     else:
@@ -317,3 +319,13 @@ def is_equal(a, b, c):
         return False
 
 
+def wrtUUID(value):
+    os.chdir(r'C:\WinTest\Tools')
+    instruct = 'EEPROM64.exe -s -uu -b %s' % (value)
+    print(instruct)
+    if os.system(instruct) == 0:
+        return
+    else:
+        ex = Exception(instruct + '，执行失败')
+        # 抛出异常对象
+        raise ex

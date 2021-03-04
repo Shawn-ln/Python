@@ -1,11 +1,8 @@
 # Coding by LiXiao
-# Datatime:3/3/2021 5:56 PM
-# Filename:WriteUUID.py
+# Datatime:3/4/2021 2:25 PM
+# Filename:Lidswitch.py
 # Toolby: PyCharm
 import os
-
-from pip._vendor.colorama import Fore
-
 import support
 
 # 开头模板信息
@@ -14,9 +11,15 @@ dictor = {
     'FailRetrytimes':'10',
     'UPLIMIT':'9999.900',
     'LOWLIMIT':'-9999.900',
-    'RUNITEM':'WriteUUID',
+    'RUNITEM':'Lidswitch',
     'Errorcode':'MBCF4',
-    'tool_path':'C:\WinTest\Work'
+    'tool_path':'C:\WinTest\FFT\LidSwitch',
+    'instruct1':'SwitchLid.exe -E',
+    'result_log_name1':'LID.log',
+    'check_item1':'Disable LID Successful',
+    'instruct2':'WinLidSw.exe',
+    'result_log_name2':'WinLidSw.log',
+    'check_item2':'Result=PASS'
 }
 
 try:
@@ -31,7 +34,7 @@ try:
     # print(currentPath)
 
     # 读取主板写入的mbsn
-    MB_SN = support.getSN()
+    MB_SN = support.getMBSN()
 
     # 判断是否有测试pass的log记录
     if support.passlog(dictor['RUNITEM']):
@@ -41,47 +44,17 @@ try:
         # 测试正文
         for n in range(1, 200):
             # 测试内容和结果
-            Y = StartTime[0:4]
-            print(Y)
-            M = StartTime[5:7]
-            print(M)
-            D = StartTime[8:10]
-            print(D)
-            WIFIMAC = support.getMAC(MACID='WirelessMAC')
-            BTMAC = support.getMAC(MACID='BluetoothMAC')
-            if len(WIFIMAC) == 12:
-                print('WIFIMAC:' + WIFIMAC)
-            else:
-                ex = Exception('WLAN_MAC地址长度错误，正确应为12码，实际' + str(len(WIFIMAC)) + '码请到设备管理器检查无线网卡和蓝牙是否能抓到，没被禁用，没黄标')
-                # 抛出异常对象
-                raise ex
-            if len(BTMAC) == 12:
-                print('BTMAC:' + BTMAC)
-            else:
-                ex = Exception('BT_MAC地址长度错误，正确应为12码，实际' + str(len(BTMAC)) + '码请到设备管理器检查无线网卡和蓝牙是否能抓到，没被禁用，没黄标')
-                # 抛出异常对象
-                raise ex
-            UUID_BTMAC = BTMAC[0:2] + ' ' + BTMAC[2:4] + ' ' + BTMAC[4:6] + ' ' + BTMAC[6:8] + ' ' + BTMAC[8:10] + ' ' + BTMAC[10:12]
-            UUID_WIFIMAC = WIFIMAC[2:4] + ' ' + WIFIMAC[0:2] + ' ' + WIFIMAC[6:8] + ' ' + WIFIMAC[4:6] + ' ' + WIFIMAC[8:10] + ' ' + WIFIMAC[10:12]
-            print(UUID_BTMAC)
-            print(UUID_WIFIMAC)
 
-            UUIDW = D + ' ' + M + ' ' + Y[2:4] + ' ' + Y[0:2] + ' ' + UUID_WIFIMAC + ' ' + UUID_BTMAC
-            UUIDR = Y + M + D + '-' + WIFIMAC[0:4] + '-' + WIFIMAC[4:8] + '-' + WIFIMAC[8:12] + '-' + BTMAC
-            print(UUIDW)
-            print(UUIDR)
-            support.test()
-            print(Fore.GREEN + 'hahaha' + Fore.RESET)
-            print(Fore.RED + 'hahaha' + Fore.RESET)
             print('测试正文')
+            LID = support.test(tool_path=dictor['tool_path'], result_log_name=dictor['result_log_name2'],
+                         check_item=dictor['check_item2'], instruct=dictor['instruct2'],
+                         check_data='PASS')
             Errorcode = '.'
-            result = '.'
-            if WIFIMAC == '.':
-                if BTMAC == '.':
-                    Errorcode = 'HS946'
-                    result = 'fail'
-            else:
+            if LID:
                 result = 'pass'
+            else:
+                Errorcode = 'MBCF4'
+                result = 'fail'
 
             # 判断测试结果
             if result == 'fail':
@@ -123,7 +96,7 @@ try:
 
 except AttributeError as e:
     print(e)
-    print('SN匹配信息错误，请检查正则表达式！！！')
+    print("SN匹配信息错误，请检查正则表达式！！！")
 
 except Exception as e:
     print(e)
