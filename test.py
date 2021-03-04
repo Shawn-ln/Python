@@ -14,7 +14,7 @@ dictor = {
     'LOWLIMIT':'-9999.900',
     'RUNITEM':'UpdatePatch',
 }
-
+print('aaa')
 pdtkey = (
     'PUKM-WUQ5-851W-09U6-TQ0W',
     'PUKM-QP10-9IP1-808W-QRE6',
