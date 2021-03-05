@@ -8,24 +8,36 @@ import re
 import datetime
 from shutil import copyfile
 
-# Check Bios
-def test(tool_path, result_log_name, check_item, instruct, check_data):
+
+def test(tool_path, result_log_name, act, check_item, instruct, check_data):
     os.chdir(tool_path)
+    if act == 'write':
+        with open(result_log_name, 'w', encoding='utf-8', newline='') as f:
+            if f.write(check_data) == 0:
+                return True
+        return False
     instruct1 = instruct
-    os.system(instruct1)
-    str = ''
+    res = os.system(instruct1)
+    print(res)
     with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if check_item in line:
-                # 截取'param='后面的内容
-                str = re.sub(r'^.*=', '', line).strip()
-    if check_data == str:
-        return True
-    else:
-        return False
-        # ex = Exception('BIOS/EC版本信息检查失败，当前BIOS/EC版本：' + str + ', 目标BIOS/EC版本:' + check_data)
-        # # 抛出异常对象
-        # raise ex
+                if act == 'judge':
+                    # 截取'param='后面的内容
+                    strs = re.sub(r'^.*=', '', line).strip()
+                    if check_data == strs:
+                        return True
+                if act == 'find':
+                    return True
+                if act == 'read':
+                    strs = re.sub(r'^.*=', '', line).strip()
+                    return strs
+    return False
+    # ex = Exception('BIOS/EC版本信息检查失败，当前BIOS/EC版本：' + str + ', 目标BIOS/EC版本:' + check_data)
+    # # 抛出异常对象
+    # raise ex
+
+
 
 
 def message(Code):
@@ -54,6 +66,27 @@ def getMAC(MACID):
                 # print(strs)
                 return strs
     return strs
+
+
+def file_info(file_path, act, file_name, param):
+    os.chdir(file_path)
+    if act == 'write':
+        with open(file_name, 'w', encoding='utf-8', newline='') as f:
+            if f.write(param):
+                return True
+    if act == 'read':
+        with open(file_name, 'r', encoding='utf-8', newline='') as f:
+            for line in f.readlines():
+                if param in line:
+                    strs = re.sub(r'^.*=', '', line).strip()
+                    return strs
+    if act == 'find':
+        with open(file_name, 'r', encoding='utf-8', newline='') as f:
+            for line in f.readlines():
+                if param in line:
+                    return True
+    print(file_name, act, file_path, param)
+    return
 
 
 def get_csv_info(log_name, param):
@@ -316,6 +349,7 @@ def is_equal(a, b, c):
         print(c, ' Check Pass')
         return True
     else:
+        print(c, ' Check Fail')
         return False
 
 

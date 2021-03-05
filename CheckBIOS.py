@@ -51,12 +51,10 @@ try:
             ECver = support.get_ini_info(param='ECver')
             print(ECver)
             print('测试正文')
-            chkbios = support.test(tool_path=dictor['tool_path'], result_log_name=dictor['result_log_name'],
-                         check_item=dictor['check_item'], instruct=dictor['instruct'],
-                         check_data=BIOSver)
-            chkec = support.test(tool_path=dictor['tool_path'], result_log_name=dictor['result_log_name1'],
-                         check_item=dictor['check_item1'], instruct=dictor['instruct1'],
-                         check_data=ECver)
+            chkbios = support.test(tool_path=dictor['tool_path'], act='judge', result_log_name=dictor['result_log_name'],
+                         check_item=dictor['check_item'], instruct=dictor['instruct'], check_data=BIOSver)
+            chkec = support.test(tool_path=dictor['tool_path'], act='judge', result_log_name=dictor['result_log_name1'],
+                         check_item=dictor['check_item1'], instruct=dictor['instruct1'], check_data=ECver)
             Errorcode = '.'
             if chkbios:
                 if chkec:

@@ -34,10 +34,10 @@ try:
     # print(currentPath)
 
     # 读取主板写入的mbsn
-    MB_SN = support.getMBSN()
+    MB_SN = support.getSN()
 
     # 判断是否有测试pass的log记录
-    if support.passlog(dictor['RUNITEM']):
+    if 1 == 0:
         # creatResult
         support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
     else:
@@ -46,7 +46,7 @@ try:
             # 测试内容和结果
 
             print('测试正文')
-            LID = support.test(tool_path=dictor['tool_path'], result_log_name=dictor['result_log_name2'],
+            LID = support.test(tool_path=dictor['tool_path'], act='get', result_log_name=dictor['result_log_name2'],
                          check_item=dictor['check_item2'], instruct=dictor['instruct2'],
                          check_data='PASS')
             Errorcode = '.'
