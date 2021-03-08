@@ -16,8 +16,7 @@ def test(tool_path, result_log_name, act, check_item, instruct, check_data):
             if f.write(check_data) == 0:
                 return True
         return False
-    instruct1 = instruct
-    res = os.system(instruct1)
+    res = os.system(instruct)
     print(res)
     with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
@@ -26,6 +25,7 @@ def test(tool_path, result_log_name, act, check_item, instruct, check_data):
                     # 截取'param='后面的内容
                     strs = re.sub(r'^.*=', '', line).strip()
                     if check_data == strs:
+                        # print(strs)
                         return True
                 if act == 'find':
                     return True
@@ -36,7 +36,6 @@ def test(tool_path, result_log_name, act, check_item, instruct, check_data):
     # ex = Exception('BIOS/EC版本信息检查失败，当前BIOS/EC版本：' + str + ', 目标BIOS/EC版本:' + check_data)
     # # 抛出异常对象
     # raise ex
-
 
 
 
@@ -84,6 +83,7 @@ def file_info(file_path, act, file_name, param):
         with open(file_name, 'r', encoding='utf-8', newline='') as f:
             for line in f.readlines():
                 if param in line:
+                    print(line)
                     return True
     print(file_name, act, file_path, param)
     return

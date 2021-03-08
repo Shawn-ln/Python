@@ -78,19 +78,21 @@ try:
                 support.del_log(log_path=r'C:\WinTest\Tools\writeuuid.txt')
                 support.file_info(file_path=r'C:\WinTest\LogFile', act='write', file_name='UUID.BAT', param='set UUID='+UUIDR)
                 struct = 'EEPROM64.exe -s -uu -b "%s" >writeuuid.txt' % (UUIDW)
-                print(struct)
-                os.chdir(dictor['tool_path'])
-                reau = os.system(struct)
-                print(reau)
+                # print(struct)
+                # os.chdir(dictor['tool_path'])
+                # reau = os.system(struct)
+                # print(reau)
+                writeuuid = support.test(tool_path=dictor['tool_path'], result_log_name='writeuuid.txt', act='find', check_item='Success', check_data='Success!', instruct=struct)
+                print('writeuuid: ', writeuuid)
                 support.file_info(file_path='C:\WinTest\LogFile', act='write', file_name='UUIDWRTOK.LOG', param=StartTime + ' UUID Write OK')
                 os.system('shutdown -r -t 3')
                 break
             # check UUID
             print('check UUID')
             UUID = support.test(tool_path=dictor['tool_path'], act='read', result_log_name='checkuuid.txt', check_item='UUID', instruct=r'WMIC CSPRODUCT LIST FULL | FIND /I "UUID=" >checkuuid.txt', check_data='')
-            print('UUID: ' + UUID)
+            print('机器写入UUID: ' + UUID)
             result = support.file_info(file_path=r'C:\WinTest\LogFile', act='find', file_name='UUID.BAT', param=UUID)
-            print(result)
+            print('UUID比对结果：', result)
             print('测试正文')
             Errorcode = '.'
             result = 'pass'
