@@ -7,19 +7,19 @@ import support
 
 # 开头模板信息
 dictor = {
-    'FailRetry':'0',
-    'FailRetrytimes':'10',
-    'UPLIMIT':'9999.900',
-    'LOWLIMIT':'-9999.900',
-    'RUNITEM':'CheckBIOS',
-    'Errorcode':'MBCF4',
-    'tool_path':'C:\WinTest\Tools',
-    'instruct':'call BiosVersion_x64.exe >BIOSVER.BAT',
-    'result_log_name':'BIOSVER.BAT',
-    'check_item':'BiosVersion',
+    'FailRetry': '0',
+    'FailRetrytimes': '10',
+    'UPLIMIT': '9999.900',
+    'LOWLIMIT': '-9999.900',
+    'RUNITEM': 'CheckBIOS',
+    'Errorcode': 'MBCF4',
+    'tool_path': 'C:\WinTest\Tools',
+    'instruct': 'call BiosVersion_x64.exe >BIOSVER.BAT',
+    'result_log_name': 'BIOSVER.BAT',
+    'check_item': 'BiosVersion',
     'instruct1': 'call ECVersion_NB6067.exe',
-    'result_log_name1':'ECVersion_NB6067.BAT',
-    'check_item1':'EC_VER',
+    'result_log_name1': 'ECVersion_NB6067.BAT',
+    'check_item1': 'EC_VER',
 }
 
 try:
@@ -73,15 +73,11 @@ try:
                     print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
                     continue
 
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='F', NUM='0',
-                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='F', NUM='0',
+                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime)
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
                 support.message(Code=Errorcode)
                 break
@@ -89,15 +85,11 @@ try:
             elif result == 'pass':
                 print('测试循环次数:', n, '，测试结果：pass！！！')
                 print('测试SN:', MB_SN)
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='P', NUM='1',
-                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='P', NUM='1',
+                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime)
                 break
 
             else:

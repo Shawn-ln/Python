@@ -50,14 +50,27 @@ try:
                                    system=dictor['SYS'], station=dictor['STAT'], step=dictor['STEP'],
                                    RequestFilePath=dictor['RFP'], SN=MB_SN)
             # Write DMI
-            pn = support.get_response_info(param='SET SubSeries')
-            fd = support.get_response_info(param='SET SubSeries')
+            pn = '.'
+            fd = '.'
+            mktnm = support.get_response_info(param='SET MarketingName')
+            if mktnm == 'YOGA_SLIM_7_CARBON_13ITL5':
+                pn = 'Yoga Slim 7 Carbon 13ITL5'
+                fd = 'Yoga Slim 7 Carbon 13ITL5'
             mt = support.get_response_info(param='SET Cust_PN_1')
             ln = support.get_response_info(param='SET SN')
             KB_PN = support.get_response_info(param='SET KBPN')
             KBID = support.get_csv_info(log_name='KB.CSV', param=KB_PN)[17:18]
             osp = support.get_response_info(param='SET MTM_DPKPN')
             oa3keyid = support.get_response_info(param='SET ProductkeyID')
+
+            if pn == '.':
+                ex = Exception("ProductName信息获取失败，当前MarketingName信息为：", + mktnm)
+                # 抛出异常对象
+                raise ex
+            if fd == '.':
+                ex = Exception("FamilyName信息获取失败，当前MarketingName信息为：", + mktnm)
+                # 抛出异常对象
+                raise ex
 
             support.wrtDMI(var='pn', vaule=pn)
             support.wrtDMI(var='fd', vaule=pn)
@@ -114,15 +127,11 @@ try:
                     print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
                     continue
 
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='F', NUM='0',
-                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='F', NUM='0',
+                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime)
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
                 support.message(Code=Errorcode)
                 break
@@ -130,15 +139,11 @@ try:
             elif result == 'pass':
                 print('测试循环次数:', n, '，测试结果：pass！！！')
                 print('测试SN:', MB_SN)
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='P', NUM='1',
-                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='P', NUM='1',
+                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime)
                 break
 
             else:

@@ -3,19 +3,20 @@
 # Filename:CheckHW.py
 # Toolby: PyCharm
 import os
+from shutil import copyfile
 import support
 
 # 开头模板信息
 dictor = {
-    'FailRetry':'0',
-    'FailRetrytimes':'10',
-    'UPLIMIT':'9999.900',
-    'LOWLIMIT':'-9999.900',
-    'RUNITEM':'CheckHW',
-    'instruct':'BlueTooth.exe',
-    'Errorcode':'HT942',
-    'tool_path':'C:\WinTest\FFT\Bluetooth',
-    'result_log_name':'bluetooth.log'
+    'FailRetry': '0',
+    'FailRetrytimes': '1',
+    'UPLIMIT': '9999.900',
+    'LOWLIMIT': '-9999.900',
+    'RUNITEM': 'CheckHW',
+    'instruct': 'BlueTooth.exe',
+    'Errorcode': 'HT942',
+    'tool_path': 'C:\WinTest\Tools',
+    'result_log_name': 'bluetooth.log'
 }
 
 try:
@@ -40,11 +41,114 @@ try:
         # 测试正文
         for n in range(1, 200):
             # 测试内容和结果
-
-            if support.test(tool_path=dictor['tool_path'], result_log_name=dictor['result_log_name'], act='find', instruct=dictor['instruct'], check_item='RESULT=', check_data='RESULT=PASS'):
-                result = 'pass'
+            Errorcode = '.'
+            print('测试工具注册')
+            ptdcode = support.get_response_info(param='ToolAuthenticationCodeByPSN')
+            if ptdcode is None:
+                ex = Exception('工具注册码获取失败！！！')
+                # 抛出异常对象
+                raise ex
+            struct = 'PTDRegRun.exe %s >regist.txt' % ptdcode
+            print(struct)
+            ptd_res = support.test(tool_path=dictor['tool_path'], result_log_name='regist.txt', act='find', instruct=struct, check_item='Activation', check_data='Activation Successful')
+            if ptd_res:
+                print('注册结果:', ptd_res)
             else:
+                ex = Exception('工具注册失败！！！')
+                # 抛出异常对象
+                raise ex
+
+            print('设备管理器黄标检查')
+            support.del_log('C:\WinTest\Tools\Device.bat')
+            device_chk_struct = 'DeviceYellowCheck.exe >Device.bat'
+            device_chk_res = support.test(tool_path=dictor['tool_path'], result_log_name='Device.bat', act='find', instruct=device_chk_struct, check_item='CheckDevice', check_data='CheckDevice=PASS')
+            if device_chk_res:
+                print('Device check pass!!!')
+                copyfile('Device.bat', r'C:\WinTest\LogFile' + '\\' + 'CheckDevice.log')
+            else:
+                print('Device check fail!!!')
+                Errorcode = 'Yellow'
                 result = 'fail'
+
+            if Errorcode == '.':
+                print('CPU类型检查')
+                support.del_log(r'C:\WinTest\Tools\CPU.BAT')
+                mbpn = support.get_response_info(param='MBPN')
+                print('mbpn', mbpn)
+                cpu_info = support.get_csv_info(log_name='CPU.CSV', param=mbpn)
+                cpu_info_list = cpu_info.split(',')     # 用”,“将CPU信息分隔开
+                print('cpu_info_list', cpu_info_list)
+                print('cpu_info:', cpu_info)
+                cpu_chk_stract = 'PC_CPU.exe /set >CPU.BAT'
+                check_list = ['CPU_Model', 'CPU_ID', 'CPU_Speed']
+                print(len(check_list))
+                for i in range(0, len(check_list)):
+                    print('hahah')
+                cpu_model = support.test(
+                    tool_path=dictor['tool_path'],
+                    result_log_name='CPU.BAT',
+                    act='read',
+                    instruct=cpu_chk_stract,
+                    check_item='CPU_Model',
+                    check_data=''
+                )
+                print('cpu_model:', cpu_model)
+                if cpu_model == cpu_info_list[1]:
+                    print('CPU类型检查PASS!!!')
+                    copyfile(src=r'C:\WinTest\Tools\CPU.BAT', dst=r'C:\WinTest\LogFile' + '\\' + 'Check_CPU.log')
+                else:
+                    code = 'MBCF2'
+                    msg1 = 'CPU类型检查失败,MES定义CPU类型为:' + cpu_model + ',实际组装CPU厂商类型为:' + cpu_info_list[1]
+                    print(msg1)
+                    support.setmsg(Errorcode=code, msg=msg1)
+
+            if Errorcode == '.':
+                print('RAM类型检查')
+                support.del_log(r'C:\WinTest\Tools\RAM.BAT')
+                mbpn = support.get_response_info(param='MBPN')
+                print('mbpn', mbpn)
+                ram_info = support.get_csv_info(log_name='RAM.CSV', param=mbpn)
+                print('ram_info:', ram_info)
+                ram_info_list = ram_info.split(',')
+                print(ram_info_list)
+                ram_chk_stract = 'SMBIOS.exe >RAM.BAT'
+                ram_size = support.test(
+                    tool_path=dictor['tool_path'],
+                    result_log_name='RAM.BAT',
+                    act='read',
+                    instruct=ram_chk_stract,
+                    check_item='RAMTotalSize',
+                    check_data=''
+                )
+                ram_vender = support.test(
+                    tool_path=dictor['tool_path'],
+                    result_log_name='RAM.BAT',
+                    act='read',
+                    instruct=ram_chk_stract,
+                    check_item='Slot1_Vendor',
+                    check_data=''
+                )
+
+                print(ram_size, ram_info_list[2], ram_vender, ram_info_list[1])
+                if ram_size == ram_info_list[2]:
+                    if ram_vender == ram_info_list[1]:
+                        print('RAM类型检查PASS!!!')
+                        copyfile(src=r'C:\WinTest\Tools\RAM.BAT', dst=r'C:\WinTest\LogFile' + '\\' + 'Check_RAM.log')
+                    else:
+                        code = 'MBCF3'
+                        msg1 = 'RAM厂商类型检查失败,MES定义RAM厂商类型为:' + ram_vender + ',实际组装RAM厂商类型为:' + ram_info_list[1]
+                        print(msg1)
+                        support.setmsg(Errorcode=code, msg=msg1)
+                        result = 'fail'
+
+
+
+
+
+
+
+
+            result = 'fail'
 
             # 判断测试结果
             if result == 'fail':
@@ -53,31 +157,23 @@ try:
                     print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
                     continue
 
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
-                # creatResult
+                # CreateResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
-                # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='F', NUM='0',
-                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime, TestTime=TestTimes)
+                # SetInfo
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='F', NUM='0',
+                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime)
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
-                support.message(Code=dictor['Errorcode'])
+                support.message(Code=Errorcode)
                 break
 
             elif result == 'pass':
                 print('测试循环次数:', n, '，测试结果：pass！！！')
                 print('测试SN:', MB_SN)
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
-                # creatResult
+                # CreateResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
-                # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='P', NUM='1',
-                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime, TestTime=TestTimes)
+                # SetInfo
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='P', NUM='1',
+                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime)
                 break
 
             else:

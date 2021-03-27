@@ -1,121 +1,43 @@
-# Coding by LiXiao
-# Datatime:2/26/2021 11:37 AM
-# Filename:test.py
-# Toolby: PyCharm
-import os
-import support
-import time   # 测试时拿掉
+class Toy(object):  # 此处此类可理解为设计一个Toy的蓝图
+    # 赋值定义类属性，记录所有玩具数量
+    count = 0
 
-# 开头模板信息
-dictor = {
-    'FailRetry':'0',
-    'FailRetrytimes':'10',
-    'UPLIMIT':'9999.900',
-    'LOWLIMIT':'-9999.900',
-    'RUNITEM':'UpdatePatch',
-}
+    def __init__(self, name):  # 用于实例初始化
+        self.name = name
+        # 类属性 +1
+        Toy.count += 1
 
-pdtkey = (
-    'PUKM-WUQ5-851W-09U6-TQ0W',
-    'PUKM-QP10-9IP1-808W-QRE6',
-    'PUKM-T9EP-R9IE-5RPE-8U0O',
-    'PUKM-QQIR-IOPQ-6QTQ-09P9',
-    'PUKM-00I9-EPOE-OQ8O-I0II',
-    'PUKM-9YWO-Q8RI-P969-TIUE',
-    'PUKM-QI0P-E558-YI1R-W8T5',
-    'PUKM-QP10-9IP1-808W-QRE6',
-    'PUKM-WUQ5-851W-09U6-TQ0W',
-    'PUKM-WTRY-165I-POOU-WR8P',
-    'PUKM-YR0I-E6PY-1T9P-8UP0'
-)
+    @classmethod  # 此装饰器表示是类方法，类方法无需创建实例对象即可调用，最为灵活
+    def show_toy_count(cls):
+        print('玩具对象的数量 %d' % cls.count, cls)
 
-try:
-    # 设置时区，同步时间
-    support.SyncTime()
+    @staticmethod  # 此装饰器表示是静态方法，静态方法本质上是封装在类对象内的的函数，常用于测试
+    def hi():
+        print('Hello!')
 
-    # 测试开始时间
-    StartTime = support.titles(RUNITEM=dictor['RUNITEM'], stage='start')
-    for i in dictor:
-        print(i + ' : ' + dictor[i])
-
-    # 脚本路径
-    currentPath = os.getcwd()
-    # currentPath = r'C:\WinTest\Work'
-    # print(currentPath)
-
-    # 读取主板写入的mbsn
-    MB_SN = support.getMBSN()
-
-    # 判断是否有测试pass的log记录
-    if support.passlog(dictor['RUNITEM']):
-        # creatResult
-        support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
-    else:
-        # 测试正文
-        for n in range(1, 200):
-            # 测试内容和结果
-
-            # disableIPV6
-            support.disableIPV6()
-
-            # 运行工具注册码
-            for i in pdtkey:
-                support.ptd(i)
-
-            # 平板机种需要设定
-            # support.padsetting()
-
-            # 读取Model_ini.BAT中Model信息
-            MODEL = support.get_ini_info(param='Model')
-
-            print('测试正文')
-            if dictor['FailRetry'] == '5':
-                result = 'pass'
-            else:
-                result = 'fail'
-            # result = 'fail'
-
-            # 判断测试结果
-            if result == 'fail':
-                if support.judge(FailRetry=dictor['FailRetry'], FailRetrytimes=dictor['FailRetrytimes']):
-                    dictor['FailRetry'] = str(int(dictor['FailRetry']) + 1)
-                    print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
-                    continue
-
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
-                # creatResult
-                support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
-                # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='F', NUM='0',
-                                LOGINFO='UpdatePatch Fail', Starttime=StartTime, TestTime=TestTimes)
-                print('测试循环次数:', n, '，测试结果：fail！！！！')
-                break
-
-            elif result == 'pass':
-                print('测试循环次数:', n, '，测试结果：pass！！！')
-                time.sleep(3)    # 测试时拿掉
-                print('测试SN:', MB_SN)
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
-                # creatResult
-                support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
-                # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='P', NUM='1',
-                                LOGINFO='UpdatePatch Success', Starttime=StartTime, TestTime=TestTimes)
-                break
-
-            else:
-                print('无测试结果！！！')
+    # 实例方法
+    def beybey(self):
+        print('Sad！', self)
 
 
-except AttributeError as e:
-    print(e)
-    print("SN匹配信息错误，请检查正则表达式！！！")
+# 创建实例对象
+toy1 = Toy('乐高')
+toy1.hand = 2
+toy2 = Toy('泰迪熊')
+toy3 = Toy('哥斯拉')
+print(toy1.name, toy2.name, toy3.name)
 
-except Exception as e:
-    print(e)
+# 点语法调用类方法与静态方法，如：类名.方法
+Toy.show_toy_count()
+Toy.hi()
+# 实例对象调用类方法时，与类对象调用类方法无异，但实际上调用仍通过实例对象继承的类对象
+toy1.show_toy_count()
+print(toy1.hand)
+# 实例对象调用静态方法时，与类对象调用静态方法无异，但实际上调用仍通过实例对象继承的类对象
+toy2.hi()
+# 实例对象调用实例方法,Python的解释器内部，当我们调用toy3.beybey()时，实际上Python解释成Toy.beybey(toy3)
+toy3.beybey()
+# Toy.beybey()  # 错误语法，self必须指向实例对象，此处实例方法指向类对象而不是实例对象
+Toy.beybey(toy3)
+# 类与其实例的类型和内存地址
+print(type(Toy), id(Toy), type(toy3), id(toy3))

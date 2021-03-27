@@ -7,19 +7,19 @@ import support
 
 # 开头模板信息
 dictor = {
-    'FailRetry':'0',
-    'FailRetrytimes':'10',
-    'UPLIMIT':'9999.900',
-    'LOWLIMIT':'-9999.900',
-    'RUNITEM':'Lidswitch',
-    'Errorcode':'MBCF4',
-    'tool_path':'C:\WinTest\FFT\LidSwitch',
-    'instruct1':'SwitchLid.exe -E',
-    'result_log_name1':'LID.log',
-    'check_item1':'Disable LID Successful',
-    'instruct2':'WinLidSw.exe',
-    'result_log_name2':'WinLidSw.log',
-    'check_item2':'Result=PASS'
+    'FailRetry': '0',
+    'FailRetrytimes': '10',
+    'UPLIMIT': '9999.900',
+    'LOWLIMIT': '-9999.900',
+    'RUNITEM': 'Lidswitch',
+    'Errorcode': 'MBCF4',
+    'tool_path': 'C:\WinTest\FFT\LidSwitch',
+    'instruct1': 'SwitchLid.exe -E',
+    'result_log_name1': 'LID.log',
+    'check_item1': 'Disable LID Successful',
+    'instruct2': 'WinLidSw.exe',
+    'result_log_name2': 'WinLidSw.log',
+    'check_item2': 'Result=PASS'
 }
 
 try:
@@ -46,10 +46,11 @@ try:
             # 测试内容和结果
 
             print('测试正文')
-            LID = support.test(tool_path=dictor['tool_path'], act='get', result_log_name=dictor['result_log_name2'],
-                         check_item=dictor['check_item2'], instruct=dictor['instruct2'],
-                         check_data='PASS')
+            LID = support.test(tool_path=dictor['tool_path'], act='find', result_log_name=dictor['result_log_name2'],
+                               check_item=dictor['check_item2'], instruct=dictor['instruct2'],
+                               check_data='PASS')
             Errorcode = '.'
+            print('LID:', LID)
             if LID:
                 result = 'pass'
             else:
@@ -63,15 +64,11 @@ try:
                     print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
                     continue
 
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='F', NUM='0',
-                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='F', NUM='0',
+                                LOGINFO=dictor['RUNITEM'] + ' Fail', Starttime=StartTime)
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
                 support.message(Code=Errorcode)
                 break
@@ -79,15 +76,11 @@ try:
             elif result == 'pass':
                 print('测试循环次数:', n, '，测试结果：pass！！！')
                 print('测试SN:', MB_SN)
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='P', NUM='1',
-                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='P', NUM='1',
+                                LOGINFO=dictor['RUNITEM'] + ' Pass', Starttime=StartTime)
                 break
 
             else:
@@ -100,4 +93,3 @@ except AttributeError as e:
 
 except Exception as e:
     print(e)
-

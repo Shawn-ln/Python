@@ -76,15 +76,11 @@ try:
                     print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
                     continue
 
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='F', NUM='0',
-                                LOGINFO='UpdatePatch Fail', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='F', NUM='0',
+                                LOGINFO='UpdatePatch Fail', Starttime=StartTime)
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
                 break
 
@@ -92,15 +88,11 @@ try:
                 print('测试循环次数:', n, '，测试结果：pass！！！')
                 time.sleep(3)    # 测试时拿掉
                 print('测试SN:', MB_SN)
-                # 计算测试时间
-                TestTimes = support.gettesttime(start=StartTime)
-                print('测试用时:', TestTimes)
                 # creatResult
                 support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, UPLIMIT=dictor['UPLIMIT'],
-                                LOWLIMIT=dictor['LOWLIMIT'], Result='P', NUM='1',
-                                LOGINFO='UpdatePatch Success', Starttime=StartTime, TestTime=TestTimes)
+                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='P', NUM='1',
+                                LOGINFO='UpdatePatch Success', Starttime=StartTime)
                 break
 
             else:

@@ -9,6 +9,28 @@ import datetime
 from shutil import copyfile
 
 
+def judge_battery(lowlimit, highlimit):
+    if lowlimit > highlimit:
+        ex = Exception('judge_battery() 参数值错误')
+        # 抛出异常对象
+        raise ex
+    os.chdir(r'C:\win\FRTITEM\Battery')
+    instruct = 'ACStatus.exe -c %d %d>battery.log' % (lowlimit, highlimit)
+    res = os.system(instruct)
+    print('res', res)
+    rsoc = '.'
+    with open('battery.log', 'r', encoding='utf-8', newline='') as f:
+        for line in f.readlines():
+            if 'RSOC:' in line:
+                rsoc = re.sub('^.*:', '', line).strip()
+                print('rsoc', rsoc)
+            if 'Battery RSOC Test PASS' in line:
+                print('电池电量:%s ,在 %d - %d 范围内，检查PASS' % (rsoc, lowlimit, highlimit))
+                return False
+            else:
+                return True
+
+
 def test(tool_path, result_log_name, act, check_item, instruct, check_data):
     os.chdir(tool_path)
     if act == 'write':
@@ -17,7 +39,7 @@ def test(tool_path, result_log_name, act, check_item, instruct, check_data):
                 return True
         return False
     res = os.system(instruct)
-    print(res)
+    print(instruct, res)
     with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if check_item in line:
@@ -121,6 +143,9 @@ def del_log(log_path):
     res = os.path.exists(log_path)
     if res:
         os.remove(log_path)
+        print('文件已成功删除！！！', log_path)
+    else:
+        print('文件不存在，无需删除！！！', log_path)
     return
 
 
@@ -146,15 +171,6 @@ def get_ini_info(param):
     ex = Exception(param + "信息在Model_ini.BAT未找到！！！")
     # 抛出异常对象
     raise ex
-
-
-def gettesttime(start):
-    EndTime = datetime.datetime.now()
-    EndTimes = re.sub(r'\..*$', "", str(EndTime))
-    d1 = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M:%S')
-    d2 = datetime.datetime.strptime(EndTimes, '%Y-%m-%d %H:%M:%S')
-    TestTimes = d2 - d1
-    return TestTimes
 
 
 def disableIPV6():
@@ -216,17 +232,23 @@ def judge(FailRetry, FailRetrytimes):
     return False
 
 
-def setinfo(RUNITEM, SN, UPLIMIT, LOWLIMIT, Result, NUM, LOGINFO, Starttime, TestTime):
+def setinfo(RUNITEM, SN, Result, NUM, LOGINFO, Starttime):
     passfail = ''
+    EndTime = datetime.datetime.now()
+    EndTimes = re.sub(r'\..*$', "", str(EndTime))
+    d1 = datetime.datetime.strptime(Starttime, '%Y-%m-%d %H:%M:%S')
+    d2 = datetime.datetime.strptime(EndTimes, '%Y-%m-%d %H:%M:%S')
+    TestTimes = d2 - d1
+    print('测试用时:', TestTimes)
     if Result == 'P':
         passfail = 'PASS'
     if Result == 'F':
         passfail = 'FAIL'
     os.chdir(r'C:\WinTest\LogFile')
     logname = str('TestLog_' + passfail + '.txt')
-    with open(logname, 'a', encoding='utf-8') as f:
-        f.write('PAT_TEST,' + RUNITEM + ',' + SN + ',' + UPLIMIT + ',' + LOWLIMIT + ',' +
-                passfail + ',' + NUM + ',' + LOGINFO + ',' + str(Starttime) + ',' + str(TestTime) + '\n')
+    with open(logname, 'a', encoding='utf-8', newline='') as f:
+        # f.write('PAT_TEST,' + RUNITEM + ',' + SN + ',' + UPLIMIT + ',' + LOWLIMIT + ',' + passfail + ',' + NUM + ',' + LOGINFO + ',' + str(Starttime) + ',' + str(TestTimes) + '\n')
+        f.write('PAT_TEST,' + SN + ',' + RUNITEM + ',' + str(Starttime) + ',' + str(EndTimes) + ',' + Result + ',' + NUM + ',' + LOGINFO + ',' + str(TestTimes) + '\n')
         return
 
 def getMBSN():
@@ -246,6 +268,8 @@ def getMBSN():
 def getSN():
     os.chdir(r'C:\WinTest\Tools')
     instruct = 'EEPROM64.exe -g -ln -f SN.txt'
+    # r = os.popen(instruct)
+    # print(instruct, r.readlines())
     os.system(instruct)
     log_name = 'SN.txt'
     with open(log_name, 'r', encoding='utf-8', newline='') as f:
@@ -363,3 +387,11 @@ def wrtUUID(value):
         ex = Exception(instruct + '，执行失败')
         # 抛出异常对象
         raise ex
+
+
+def setmsg(Errorcode, msg):
+    os.chdir(r'C:\WinTest\Messge')
+    filename = Errorcode + '_1.txt'
+    print(filename)
+    with open(filename, 'w', encoding='utf-8', newline='') as f:
+        f.write(msg)
