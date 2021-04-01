@@ -31,33 +31,68 @@ def judge_battery(lowlimit, highlimit):
                 return True
 
 
-def test(tool_path, result_log_name, act, check_item, instruct, check_data):
-    os.chdir(tool_path)
-    if act == 'write':
-        with open(result_log_name, 'w', encoding='utf-8', newline='') as f:
-            if f.write(check_data) == 0:
-                return True
-        return False
-    res = os.system(instruct)
-    print(instruct, res)
-    with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
-        for line in f.readlines():
-            if check_item in line:
-                if act == 'judge':
-                    # 截取'param='后面的内容
-                    strs = re.sub(r'^.*=', '', line).strip()
-                    if check_data == strs:
-                        # print(strs)
+def test(tool_path, result_log_name, checklist, act, check_item, instruct, check_data):
+    print('check_item:', check_item)
+    if checklist == 'YES':
+        print('check_item:', check_item)
+        result = dict()
+        os.chdir(tool_path)
+        res = os.system(instruct)
+        print(instruct, res)
+        for i in range(0, len(check_item)):
+            print(check_item[i])
+            if act == 'write':
+                with open(result_log_name, 'w', encoding='utf-8', newline='') as f:
+                    if f.write(check_data) == 0:
                         return True
-                if act == 'find':
+                return False
+            with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
+                for line in f.readlines():
+                    print(line)
+                    if check_item[i] in line:
+                        if act == 'judge':
+                            # 截取'param='后面的内容
+                            strs = re.sub(r'^.*=', '', line).strip()
+                            if check_data == strs:
+                                # print(strs)
+                                result[check_item[i]] = strs
+                        if act == 'find':
+                            return True
+                        if act == 'read':
+                            strs = re.sub(r'^.*=', '', line).strip()
+                            result[check_item[i]] = strs
+
+        return result
+
+    elif checklist == 'NO':
+        os.chdir(tool_path)
+        if act == 'write':
+            with open(result_log_name, 'w', encoding='utf-8', newline='') as f:
+                if f.write(check_data) == 0:
                     return True
-                if act == 'read':
-                    strs = re.sub(r'^.*=', '', line).strip()
-                    return strs
-    return False
-    # ex = Exception('BIOS/EC版本信息检查失败，当前BIOS/EC版本：' + str + ', 目标BIOS/EC版本:' + check_data)
-    # # 抛出异常对象
-    # raise ex
+            return False
+        res = os.system(instruct)
+        print(instruct, res)
+        with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
+            for line in f.readlines():
+                print(line)
+                if check_item in line:
+                    if act == 'judge':
+                        # 截取'param='后面的内容
+                        strs = re.sub(r'^.*=', '', line).strip()
+                        if check_data == strs:
+                            # print(strs)
+                            return True
+                    if act == 'find':
+                        return True
+                    if act == 'read':
+                        strs = re.sub(r'^.*=', '', line).strip()
+                        return strs
+        return False
+    else:
+        ex = Exception('checklist参数错误，只能为Y/N，实际为:' + checklist)
+        # 抛出异常对象
+        raise ex
 
 
 
@@ -111,29 +146,37 @@ def file_info(file_path, act, file_name, param):
     return
 
 
-def get_csv_info(log_name, param):
+def get_csv_info(log_name_list, param_list, data_list):
     os.chdir(r'C:\WinTest\HW\HWDATA')
-    with open(log_name, 'r', encoding='utf-8', newline='') as f:
-        for line in f.readlines():
-            if param in line:
-                strs = line.strip()
-                return strs
-    ex = Exception(param + "信息在" + log_name +"未找到！！！")
-    # 抛出异常对象
-    raise ex
+    result = dict()
+    for i in range(0, len(log_name_list)):
+        with open(log_name_list[i], 'r', encoding='utf-8', newline='') as f:
+            for line in f.readlines():
+                if param_list[i] in line:
+                    strs = line.strip()
+                    result[data_list[i]] = strs
+                    break
+    return result
+    # ex = Exception(param_list + "信息在" + log_name_list +"未找到！！！")
+    # # 抛出异常对象
+    # raise ex
 
 
-def get_response_info(param):
+def get_response_info(lists, date):
     os.chdir(r'C:\WinTest\Tools')
-    logname = 'Response.bat'
-    with open(logname, 'r', encoding='utf-8', newline='') as f:
-        for line in f.readlines():
-            if param in line:
-                # 截取'param='后面的内容
-                sts = re.sub(r'^.*=', '', line).rstrip()    # rstrip()—>right strip(),清除了右边末尾的空格
-                # print(sts)
-                return sts
-    return None
+    log_name = 'Response.bat'
+    result = dict()
+    for i in range(0, len(lists)):
+        with open(log_name, 'r', encoding='utf-8', newline='') as f:
+            for line in f.readlines():
+                sts = '.'
+                print(date[i], line)
+                if date[i] in line:
+                    # 截取'param='后面的内容
+                    sts = re.sub(r'^.*=', '', line).rstrip()    # rstrip()—>right strip(),清除了右边末尾的空格
+                    # print('sts:', sts)
+                    result[lists[i]] = sts
+    return result
     # ex = Exception(param + "信息在Response.bat未找到！！！")
     # # 抛出异常对象
     # raise ex
@@ -333,49 +376,57 @@ def passlog(RUNITEM):
     return res
 
 
-def wrtDMI(var, vaule):
+def wrtDMI(var_list, vaule_list):
     os.chdir(r'C:\WinTest\Tools')
-    instruct = 'EEPROM64.exe -s -%s -c "%s"' % (var, vaule)
-    if os.system(instruct) == 0:
-        return
-    else:
-        ex = Exception(instruct + '，执行失败')
-        # 抛出异常对象
-        raise ex
-
-
-def getDMI(var, filaname):
-    os.chdir(r'C:\WinTest\Tools')
-    if os.path.exists(filaname):
-        os.remove(filaname)
-    instruct = 'EEPROM64.exe -g -%s -f %s' % (var, filaname)
-    print(instruct)
-    res = os.system(instruct)
-    if res == 0:
-        strs = '.'
-        with open(filaname, 'r', encoding='utf-8', newline='') as f:
-            for line in f.readlines():
-                strs = line.strip()
-        if strs == '.':
-            ex = Exception(var + ' 变量信息获取失败！！！')
+    for i in range(0, len(var_list)):
+        instruct = 'EEPROM64.exe -s -%s -c "%s"' % (var_list[i], vaule_list[var_list[i]])
+        print(instruct)
+        if os.system(instruct) == 0:
+            continue
+        else:
+            ex = Exception(instruct + '，执行失败')
             # 抛出异常对象
             raise ex
+    return
+
+
+def getDMI(var_list):
+    os.chdir(r'C:\WinTest\Tools')
+    result = dict()
+    for i in var_list:
+        filename = i + '.txt'
+        if os.path.exists(filename):
+            os.remove(filename)
+        instruct = 'EEPROM64.exe -g -%s -f %s' % (var_list[i], filename)
+        print(instruct)
+        res = os.system(instruct)
+        if res == 0:
+            strs = '.'
+            with open(filename, 'r', encoding='utf-8', newline='') as f:
+                for line in f.readlines():
+                    strs = line.strip()
+                    result[i] = strs
+                    # result[var_list[i]] = strs
+            if strs == '.':
+                ex = Exception(var_list + ' 变量信息获取失败！！！')
+                # 抛出异常对象
+                raise ex
         else:
-            return strs
-    else:
-        ex = Exception('"' + instruct + '"' + ' 执行失败！！！')
-        # 抛出异常对象
-        raise ex
+            ex = Exception('"' + instruct + '"' + ' 执行失败！！！')
+            # 抛出异常对象
+            raise ex
+    return result
 
 
-def is_equal(a, b, c):
-    if a == b:
-        print(c, ' Check Pass')
-        return True
-    else:
-        print(c, ' Check Fail')
-        return False
-
+def is_equal(read_list, check_list):
+    for i in read_list:
+        if read_list[i] == check_list[i]:
+            print('"' + i + '"' + ' Check Pass,实际写入值为："' + read_list[i] + '"，应写入值为："' + check_list[i] + '"\n')
+            continue
+        else:
+            print('"' + i + '"' + ' Check Fail,实际写入值为："' + read_list[i] + '"，应写入值为："' + check_list[i] + '"\n')
+            return False
+    return True
 
 def wrtUUID(value):
     os.chdir(r'C:\WinTest\Tools')

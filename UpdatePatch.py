@@ -31,7 +31,10 @@ pdtkey = (
 
 try:
     # 测试开始时间
-    StartTime = support.titles(RUNITEM=dictor['RUNITEM'], stage='start')
+    StartTime = support.titles(
+        RUNITEM=dictor['RUNITEM'],
+        stage='start'
+    )
     for i in dictor:
         print(i + ' : ' + dictor[i])
 
@@ -47,7 +50,12 @@ try:
     if support.passlog(dictor['RUNITEM']):
         # creatResult
         support.SyncTime()
-        support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
+        support.creatResult(
+            Fixed=currentPath,
+            ItemName=dictor['RUNITEM'],
+            Result=1,
+            ItemTag=0
+        )
     else:
         # disableIPV6
         support.disableIPV6()
@@ -71,16 +79,30 @@ try:
 
             # 判断测试结果
             if result == 'fail':
-                if support.judge(FailRetry=dictor['FailRetry'], FailRetrytimes=dictor['FailRetrytimes']):
+                if support.judge(
+                        FailRetry=dictor['FailRetry'],
+                        FailRetrytimes=dictor['FailRetrytimes']
+                ):
                     dictor['FailRetry'] = str(int(dictor['FailRetry']) + 1)
                     print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
                     continue
 
                 # creatResult
-                support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=-1, ItemTag=0)
+                support.creatResult(
+                    Fixed=currentPath,
+                    ItemName=dictor['RUNITEM'],
+                    Result=-1,
+                    ItemTag=0
+                )
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='F', NUM='0',
-                                LOGINFO='UpdatePatch Fail', Starttime=StartTime)
+                support.setinfo(
+                    RUNITEM=dictor['RUNITEM'],
+                    SN=MB_SN,
+                    Result='F',
+                    NUM='0',
+                    LOGINFO='UpdatePatch Fail',
+                    Starttime=StartTime
+                )
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
                 break
 
@@ -89,10 +111,21 @@ try:
                 time.sleep(3)    # 测试时拿掉
                 print('测试SN:', MB_SN)
                 # creatResult
-                support.creatResult(Fixed=currentPath, ItemName=dictor['RUNITEM'], Result=1, ItemTag=0)
+                support.creatResult(
+                    Fixed=currentPath,
+                    ItemName=dictor['RUNITEM'],
+                    Result=1,
+                    ItemTag=0
+                )
                 # setinfo
-                support.setinfo(RUNITEM=dictor['RUNITEM'], SN=MB_SN, Result='P', NUM='1',
-                                LOGINFO='UpdatePatch Success', Starttime=StartTime)
+                support.setinfo(
+                    RUNITEM=dictor['RUNITEM'],
+                    SN=MB_SN,
+                    Result='P',
+                    NUM='1',
+                    LOGINFO='UpdatePatch Success',
+                    Starttime=StartTime
+                )
                 break
 
             else:
