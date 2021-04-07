@@ -2,56 +2,83 @@
 # Datatime:3/8/2021 3:25 PM
 # Filename:CheckHW.py
 # Toolby: PyCharm
+
 import os
 from shutil import copyfile
 import support
 
 # 开头模板信息
-dictor = {
-    'FailRetry': '0',
-    'FailRetrytimes': '1',
-    'UPLIMIT': '9999.900',
-    'LOWLIMIT': '-9999.900',
-    'RUNITEM': 'CheckHW',
-    'instruct': 'BlueTooth.exe',
-    'Errorcode': 'HT942',
-    'tool_path': r'C:\WinTest\Tools',
-    'result_log_name': 'bluetooth.log'
+
+CheckHW = {
+    # 开头模板信息
+    'dictor': {
+        'FailRetry': '0',
+        'FailRetrytimes': '1',
+        'UPLIMIT': '9999.900',
+        'LOWLIMIT': '-9999.900',
+        'RUNITEM': 'CheckHW',
+        'instruct': 'BlueTooth.exe',
+        'Errorcode': 'HT942',
+        'tool_path': r'C:\WinTest\Tools',
+        'result_log_name': 'bluetooth.log'
+    },
+    # HWConfig
+    'HWConfig': {
+        'CPUES': 'AMD',
+        'ODD': 'NO',
+        'CPU': 'OnBoard',
+        'GPU': 'NO',
+        'RAM': 'OnBoard',
+        'LCD': 'YES',
+        'LCM': 'NO',
+        'SSD': 'YES',
+        'HDD': 'NO',
+        'CAM': 'YES',
+        'FCAM': 'NO',
+        'RCAM': 'NO',
+        'KB': 'YES',
+        'DOCKPN': 'NO',
+        'KBLT': 'YES',
+        'WLAN': 'OnBoard',
+        'BT': 'OnBoard',
+        'LTE': 'NO',
+        'FP': 'NO',
+        'TPFW': 'YES',
+        'PDFW': 'YES',
+        'TBTFW': 'YES',
+        'HDDC1': '1',
+        'HDDC2': '2'
+    },
+    # 测试项信息
+    'check_info': {
+        'get_response_info_list': ['ptdcode', 'MBPN', 'SSDPN', 'HDDPN', 'LCDPN', 'LCMPN', 'WIFIPN', 'FCAMPN', 'CAMPN', 'RCAMPN', 'BATTPN', 'TPPN', 'DOCKPN', 'KBPN'],
+        'get_response_info_data': ['SET ToolAuthenticationCodeByPSN=', 'SET MBPN=', 'SET SSDPN=', 'SET HDDPN=', 'SET LCDPN=', 'SET LCMPN=', 'SET WIFIPN=', 'SET FCAMPN=', 'SET CAMPN=', 'SET RCAMPN=', 'SET BATTPN=', 'SET TPPN=', 'SET DOCKPN=', 'SET KBPN='],
+        'log_name_list': ['CPU.CSV', 'BATT.CSV', 'TPD.CSV', 'RAM.CSV'],
+        'data_list': ['cpu_info_list', 'batt_info_list', 'tpd_info_list', 'ram_info_list']
+    }
 }
 
-HWConfig = {
-    'CPUES': 'AMD',
-    'ODD': '',
-    'CPU': 'OnBoard',
-    'GPU': '',
-    'RAM': 'OnBoard',
-    'LCD': '',
-    'LCM': '',
-    'SSD': '',
-    'CAM': 'YES',
-    'FCAM': '',
-    'RCAM': 'NO',
-    'KB': '',
-    'KBLT': '',
-    'WLAN': 'OnBoard',
-    'BT': 'OnBoard',
-    'LTE': '',
-    'FP': '',
-    'TPFW': '',
-    'PDFW': '',
-    'TBTFW': '',
-    'HDDC1': '1',
-    'HDDC2': '2'
-}
+support.write_json(
+    data=CheckHW,
+    path=r'C:\WinTest\JSON\data',
+    filename='CheckHW.json'
+)
+
+print('1------------------------------------------------------------------------\n')
 
 try:
+    CheckHW = support.read_json(
+        path=r'C:\WinTest\JSON\data',
+        filename='CheckHW.json'
+    )
+    print(CheckHW)
     # 测试开始时间
     StartTime = support.titles(
-        RUNITEM=dictor['RUNITEM'],
+        RUNITEM=CheckHW['dictor']['RUNITEM'],
         stage='start'
     )
-    for i in dictor:
-        print(i + ' : ' + dictor[i])
+    for i in CheckHW['dictor']:
+        print(i + ' : ' + CheckHW['dictor'][i])
 
     # 脚本路径
     currentPath = os.getcwd()
@@ -62,11 +89,11 @@ try:
     MB_SN = support.getSN()
 
     # 判断是否有测试pass的log记录
-    if support.passlog(dictor['RUNITEM']):
+    if support.passlog(CheckHW['dictor']['RUNITEM']):
         # creatResult
         support.creatResult(
             Fixed=currentPath,
-            ItemName=dictor['RUNITEM'],
+            ItemName=CheckHW['dictor']['RUNITEM'],
             Result=1,
             ItemTag=0
         )
@@ -74,20 +101,121 @@ try:
         # 测试正文
         for n in range(1, 200):
             # 测试内容和结果
-            get_response_info_list = ('ptdcode', 'mbpn', 'oa3keyid', 'mt', 'ln', 'KB_PN')
-            get_response_info_data = ('SET ToolAuthenticationCodeByPSN=', 'SET MBPN=', 'SET ProductkeyID=', 'SET Cust_PN_1=', 'SET SN=', 'SET KBPN=')
-
             Errorcode = '.'
             print('测试工具注册')
-            ptdcode = support.get_response_info(param='ToolAuthenticationCodeByPSN')
-            if ptdcode is None:
+            response_info_list = support.get_response_info(
+                lists=CheckHW['check_info']['get_response_info_list'],
+                date=CheckHW['check_info']['get_response_info_data']
+            )
+            print('response_info_list:', response_info_list)
+            if response_info_list['ptdcode'] is None:
                 ex = Exception('工具注册码获取失败！！！')
                 # 抛出异常对象
                 raise ex
-            struct = 'PTDRegRun.exe %s >regist.txt' % ptdcode
+            param_list = [response_info_list['MBPN'], response_info_list['BATTPN'], response_info_list['TPPN'], response_info_list['MBPN']]
+
+            # 获取LCD信息
+            if CheckHW['HWConfig']['LCD'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('LCD.CSV')
+                param_list.append('LCDPN')
+                CheckHW['check_info']['data_list'].append('lcd_info_list')
+            elif CheckHW['HWConfig']['LCM'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('LCD.CSV')
+                param_list.append('LCMPN')
+                CheckHW['check_info']['data_list'].append('lcd_info_list')
+            else:
+                ex = Exception('LCD信息获取失败，请检查"HWConfig"中定义信息！！！')
+                # 抛出异常对象
+                raise ex
+
+            # 获取SSD信息
+            if CheckHW['HWConfig']['SSD'] == 'OnBoard':
+                CheckHW['check_info']['log_name_list'].append('SSD.CSV')
+                param_list.append('MBPN')
+                CheckHW['check_info']['data_list'].append('ssd_info_list')
+            elif CheckHW['HWConfig']['SSD'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('SSD.CSV')
+                param_list.append('SSDPN')
+                CheckHW['check_info']['data_list'].append('ssd_info_list')
+            elif CheckHW['HWConfig']['HDD'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('SSD.CSV')
+                param_list.append('HDDPN')
+                CheckHW['check_info']['data_list'].append('ssd_info_list')
+            else:
+                ex = Exception('SSD信息获取失败，请检查"HWConfig"中定义信息！！！')
+                # 抛出异常对象
+                raise ex
+
+            # 获取WLAN信息
+            if CheckHW['HWConfig']['WLAN'] == 'OnBoard':
+                CheckHW['check_info']['log_name_list'].append('WLAN.CSV')
+                param_list.append('MBPN')
+                CheckHW['check_info']['data_list'].append('wlan_info_list')
+            elif CheckHW['HWConfig']['WLAN'] == 'COMBO':
+                CheckHW['check_info']['log_name_list'].append('WLAN.CSV')
+                param_list.append('WIFIPN')
+                CheckHW['check_info']['data_list'].append('wlan_info_list')
+            else:
+                ex = Exception('WLAN信息获取失败，请检查"HWConfig"中定义信息！！！')
+                # 抛出异常对象
+                raise ex
+
+            # 获取KB信息
+            if CheckHW['HWConfig']['KB'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('KB.CSV')
+                param_list.append('KBPN')
+                CheckHW['check_info']['data_list'].append('kb_info_list')
+            elif CheckHW['HWConfig']['DOCKPN'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('KB.CSV')
+                param_list.append('DOCKPN')
+                CheckHW['check_info']['data_list'].append('kb_info_list')
+            else:
+                ex = Exception('KB信息获取失败，请检查"HWConfig"中定义信息！！！')
+                # 抛出异常对象
+                raise ex
+
+            # 获取FCAM信息
+            if CheckHW['HWConfig']['CAM'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('FCAM.CSV')
+                param_list.append('CAMPN')
+                CheckHW['check_info']['data_list'].append('fcam_info_list')
+            elif CheckHW['HWConfig']['FCAM'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('FCAM.CSV')
+                param_list.append('FCAMPN')
+                CheckHW['check_info']['data_list'].append('fcam_info_list')
+            else:
+                ex = Exception('FCAM信息获取失败，请检查"HWConfig"中定义信息！！！')
+                # 抛出异常对象
+                raise ex
+
+            # 获取RCAM信息
+            if CheckHW['HWConfig']['RCAM'] == 'SPECIAL':
+                CheckHW['check_info']['log_name_list'].append('RCAM.CSV')
+                param_list.append('RCAMPN')
+                CheckHW['check_info']['data_list'].append('rcam_info_list')
+            elif CheckHW['HWConfig']['RCAM'] == 'YES':
+                CheckHW['check_info']['log_name_list'].append('RCAM.CSV')
+                param_list.append('RCAMPN')
+                CheckHW['check_info']['data_list'].append('rcam_info_list')
+            elif CheckHW['HWConfig']['RCAM'] == 'NO':
+                print('此配置不带后摄！！！')
+            else:
+                ex = Exception('RCAM信息获取失败，请检查"HWConfig"中定义信息！！！')
+                # 抛出异常对象
+                raise ex
+
+            a = ['cpu', 'batt', 'tpd', 'ram', 'lcd', 'ssd', 'wlan', 'kb', 'fcam', 'rcam']
+
+            csv_info_list = support.get_csv_info(
+                log_name_list=CheckHW['check_info']['log_name_list'],
+                param_list=[response_info_list['MBPN'], response_info_list['BATTPN'], response_info_list['TPPN'], response_info_list['MBPN']],
+                data_list=CheckHW['check_info']['data_list']
+            )
+            print('csv_info_list:', csv_info_list)
+            struct = 'PTDRegRun.exe %s >regist.txt' % response_info_list['ptdcode']
             print(struct)
             ptd_res = support.test(
-                tool_path=dictor['tool_path'],
+                tool_path=CheckHW['dictor']['tool_path'],
                 result_log_name='regist.txt',
                 act='find',
                 checklist='NO',
@@ -108,7 +236,7 @@ try:
             )
             device_chk_struct = 'DeviceYellowCheck.exe >Device.bat'
             device_chk_res = support.test(
-                tool_path=dictor['tool_path'],
+                tool_path=CheckHW['dictor']['tool_path'],
                 result_log_name='Device.bat',
                 checklist='NO',
                 act='find',
@@ -130,13 +258,10 @@ try:
             if Errorcode == '.':
                 print('CPU类型检查')
                 support.del_log(r'C:\WinTest\Tools\CPU.BAT')
-                mbpn = support.get_response_info(
-                    param='MBPN'
-                )
-                print('mbpn', mbpn)
                 cpu_info = support.get_csv_info(
-                    log_name='CPU.CSV',
-                    param=mbpn
+                    log_name_list=CheckHW['check_info']['log_name_list'],
+                    param_list=[response_info_list['KB_PN'], response_info_list['mktnm'], CheckHW['dictor']['OS_TYPE']],
+                    data_list=CheckHW['check_info']['data_list']
                 )
                 print('cpu_info:', cpu_info)
                 cpu_info_list = cpu_info.split(',')  # 用”,“将CPU信息分隔开
@@ -144,7 +269,7 @@ try:
                 cpu_chk_stract = 'PC_CPU.exe /set >CPU.BAT'
                 check_list = ['CPU_Model', 'CPU_ID', 'CPU_Speed']
                 cpu_info_uut = support.test(
-                    tool_path=dictor['tool_path'],
+                    tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='CPU.BAT',
                     checklist='YES',
                     act='read',
@@ -202,7 +327,7 @@ try:
                 print(ram_info_list)
                 ram_chk_stract = 'SMBIOS.exe >RAM.BAT'
                 ram_size = support.test(
-                    tool_path=dictor['tool_path'],
+                    tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='RAM.BAT',
                     act='read',
                     checklist='NO',
@@ -211,7 +336,7 @@ try:
                     check_data=''
                 )
                 ram_vender = support.test(
-                    tool_path=dictor['tool_path'],
+                    tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='RAM.BAT',
                     act='read',
                     checklist='NO',
@@ -240,27 +365,27 @@ try:
             # 判断测试结果
             if result == 'fail':
                 if support.judge(
-                        FailRetry=dictor['FailRetry'],
-                        FailRetrytimes=dictor['FailRetrytimes']
+                        FailRetry=CheckHW['dictor']['FailRetry'],
+                        FailRetrytimes=CheckHW['dictor']['FailRetrytimes']
                 ):
-                    dictor['FailRetry'] = str(int(dictor['FailRetry']) + 1)
-                    print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
+                    CheckHW['dictor']['FailRetry'] = str(int(CheckHW['dictor']['FailRetry']) + 1)
+                    print('测试循环次数：' + CheckHW['dictor']['FailRetry'], '，测试结果：fail！！！')
                     continue
 
                 # CreateResult
                 support.creatResult(
                     Fixed=currentPath,
-                    ItemName=dictor['RUNITEM'],
+                    ItemName=CheckHW['dictor']['RUNITEM'],
                     Result=-1,
                     ItemTag=0
                 )
                 # SetInfo
                 support.setinfo(
-                    RUNITEM=dictor['RUNITEM'],
+                    RUNITEM=CheckHW['dictor']['RUNITEM'],
                     SN=MB_SN,
                     Result='F',
                     NUM='0',
-                    LOGINFO=dictor['RUNITEM'] + ' Fail',
+                    LOGINFO=CheckHW['dictor']['RUNITEM'] + ' Fail',
                     Starttime=StartTime
                 )
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
@@ -273,17 +398,17 @@ try:
                 # CreateResult
                 support.creatResult(
                     Fixed=currentPath,
-                    ItemName=dictor['RUNITEM'],
+                    ItemName=CheckHW['dictor']['RUNITEM'],
                     Result=1,
                     ItemTag=0
                 )
                 # SetInfo
                 support.setinfo(
-                    RUNITEM=dictor['RUNITEM'],
+                    RUNITEM=CheckHW['dictor']['RUNITEM'],
                     SN=MB_SN,
                     Result='P',
                     NUM='1',
-                    LOGINFO=dictor['RUNITEM'] + ' Pass',
+                    LOGINFO=CheckHW['dictor']['RUNITEM'] + ' Pass',
                     Starttime=StartTime
                 )
                 break

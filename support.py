@@ -7,7 +7,31 @@ import os
 import re
 import datetime
 from shutil import copyfile
+import json
 
+
+def write_json(data, path, filename):
+    os.chdir(path)
+    del_log(path + '\\' + filename)
+    with open(filename, 'w+', encoding='utf-8', newline='') as f:
+        # f.write(write_data)
+        json.dump(
+            obj=data,
+            fp=f,
+            indent=3,
+            ensure_ascii=False
+        )
+    return True
+
+
+def read_json(path, filename):
+    os.chdir(path)
+    with open(filename, 'r+', encoding='utf-8') as f:
+        # print(f.readlines())
+        # res = json.loads(str(f.readlines()))
+        res = json.load(f)
+        # print(type(res), res)
+        return res
 
 def judge_battery(lowlimit, highlimit):
     if lowlimit > highlimit:
@@ -176,6 +200,7 @@ def get_response_info(lists, date):
                     sts = re.sub(r'^.*=', '', line).rstrip()    # rstrip()—>right strip(),清除了右边末尾的空格
                     # print('sts:', sts)
                     result[lists[i]] = sts
+                    break
     return result
     # ex = Exception(param + "信息在Response.bat未找到！！！")
     # # 抛出异常对象
