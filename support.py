@@ -56,7 +56,6 @@ def judge_battery(lowlimit, highlimit):
 
 
 def test(tool_path, result_log_name, checklist, act, check_item, instruct, check_data):
-    print('check_item:', check_item)
     if checklist == 'YES':
         print('check_item:', check_item)
         result = dict()
@@ -292,6 +291,12 @@ def titles(RUNITEM, stage):
     StartTimes = re.sub(r'\..*$', "", str(now))
     print('title: ' + str(RUNITEM) + ' is ' + str(stage) + ' running at ' + str(StartTimes))
     return StartTimes
+
+def writr_log(path, date, act):
+    with open(path, act, encoding='utf-8', newline='') as f:
+        f.write(date)
+    return True
+
 
 
 def judge(FailRetry, FailRetrytimes):
