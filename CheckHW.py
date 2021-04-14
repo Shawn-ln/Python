@@ -7,67 +7,8 @@ import os
 from shutil import copyfile
 import support
 
-# 开头模板信息
-
-CheckHW = {
-    # 开头模板信息
-    'dictor': {
-        'FailRetry': '0',
-        'FailRetrytimes': '0',
-        'UPLIMIT': '9999.900',
-        'LOWLIMIT': '-9999.900',
-        'RUNITEM': 'CheckHW',
-        'instruct': 'BlueTooth.exe',
-        'Errorcode': 'HT942',
-        'tool_path': r'C:\WinTest\Tools',
-        'result_log_name': 'bluetooth.log'
-    },
-    # HWConfig
-    'HWConfig': {
-        'CPUES': 'AMD',
-        'ODD': 'NO',
-        'CPU': 'OnBoard',
-        'GPU': 'NO',
-        'RAM': 'OnBoard',
-        'LCD': 'YES',
-        'LCM': 'NO',
-        'SSD': 'YES',
-        'HDD': 'NO',
-        'CAM': 'YES',
-        'IRCAM': 'YES',
-        'FCAM': 'NO',
-        'RCAM': 'NO',
-        'KB': 'YES',
-        'DOCKPN': 'NO',
-        'KBLT': 'YES',
-        'WLAN': 'OnBoard',
-        'BT': 'OnBoard',
-        'LTE': 'NO',
-        'FP': 'NO',
-        'TPFW': 'YES',
-        'PDFW': 'YES',
-        'TBTFW': 'YES',
-        'HDDC1': '1',
-        'HDDC2': '2'
-    },
-    # 测试项信息
-    'check_info': {
-        'get_response_info_list': ['ptdcode', 'MBPN', 'SSDPN', 'HDDPN', 'LCDPN', 'LCMPN', 'WIFIPN', 'FCAMPN', 'CAMPN', 'RCAMPN', 'BATTPN', 'TPPN', 'DOCKPN', 'KBPN'],
-        'get_response_info_data': ['SET ToolAuthenticationCodeByPSN=', 'SET MBPN=', 'SET SSDPN=', 'SET HDDPN=', 'SET LCDPN=', 'SET LCMPN=', 'SET WIFIPN=', 'SET FCAMPN=', 'SET CAMPN=', 'SET RCAMPN=', 'SET BATTPN=', 'SET TPPN=', 'SET DOCKPN=', 'SET KBPN='],
-        'log_name_list': ['CPU.CSV', 'BATT.CSV', 'TPD.CSV', 'RAM.CSV'],
-        'data_list': ['cpu_info_list', 'batt_info_list', 'tpd_info_list', 'ram_info_list']
-    }
-}
-"""
-support.write_json(
-    data=CheckHW,
-    path=r'C:\WinTest\JSON\data',
-    filename='CheckHW.json'
-)
-"""
-print('1------------------------------------------------------------------------\n')
-
 try:
+    result = 'fail'
     CheckHW = support.read_json(
         path=r'C:\WinTest\JSON\data',
         filename='CheckHW.json'
@@ -825,6 +766,7 @@ try:
                         date='此类机型下半身类型为DUCKN,无需KB类型检查!!!',
                         act='w'
                     )
+                    result = 'pass'
                 elif CheckHW['HWConfig']['KB'] == 'YES':
                     print('haha')
                     kb_info = csv_info_list['kb_info_list']
@@ -836,14 +778,12 @@ try:
                         date='set KB_TYPE=%s' % kb_info_list[1],
                         act='w'
                     )
+                    result = 'pass'
 
                 else:
                     ex = Exception('KB类型信息获取失败，请检查CheckHW.json中的KB配置信息！！！')
                     # 抛出异常对象
                     raise ex
-
-
-            result = 'fail'
 
             # 判断测试结果
             if result == 'fail':

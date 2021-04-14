@@ -5,27 +5,17 @@
 import os
 import support
 
-# 开头模板信息
-dictor = {
-    'FailRetry': '0',
-    'FailRetrytimes': '1',
-    'UPLIMIT': '9999.900',
-    'LOWLIMIT': '-9999.900',
-    'RUNITEM': 'BTTest',
-    'instruct': 'BlueTooth.exe',
-    'Errorcode': 'HT942',
-    'tool_path': r'C:\WinTest\FFT\Bluetooth',
-    'result_log_name': 'bluetooth.log'
-}
-
 try:
+    BTTest = support.read_json(
+        path=r'C:\WinTest\JSON\data',
+        filename='BTTest.json'
+    )
+    print('BTTest:', BTTest)
     # 测试开始时间
     StartTime = support.titles(
-        RUNITEM=dictor['RUNITEM'],
+        RUNITEM=BTTest['RUNITEM'],
         stage='start'
     )
-    for i in dictor:
-        print(i + ' : ' + dictor[i])
 
     # 脚本路径
     currentPath = os.getcwd()
@@ -37,12 +27,12 @@ try:
 
     # 判断是否有测试pass的log记录
     if support.passlog(
-            RUNITEM=dictor['RUNITEM']
+            RUNITEM=BTTest['RUNITEM']
     ):
         # creatResult
         support.creatResult(
             Fixed=currentPath,
-            ItemName=dictor['RUNITEM'],
+            ItemName=BTTest['RUNITEM'],
             Result=1,
             ItemTag=0
         )
@@ -50,7 +40,15 @@ try:
         # 测试正文
         for n in range(1, 200):
             # 测试内容和结果
-            if support.test(tool_path=dictor['tool_path'], checklist='NO', result_log_name=dictor['result_log_name'], act='find', instruct=dictor['instruct'], check_item='RESULT=PASS', check_data=''):
+            if support.test(
+                    tool_path=BTTest['test']['tool_path'],
+                    checklist=BTTest['test']['checklist'],
+                    result_log_name=BTTest['test']['result_log_name'],
+                    act=BTTest['test']['act'],
+                    instruct=BTTest['test']['instruct'],
+                    check_item=BTTest['test']['check_item'],
+                    check_data=BTTest['test']['check_data']
+            ):
                 result = 'pass'
             else:
                 result = 'fail'
@@ -58,32 +56,32 @@ try:
             # 判断测试结果
             if result == 'fail':
                 if support.judge(
-                        FailRetry=dictor['FailRetry'],
-                        FailRetrytimes=dictor['FailRetrytimes']
+                        FailRetry=BTTest['FailRetry'],
+                        FailRetrytimes=BTTest['FailRetrytimes']
                 ):
-                    dictor['FailRetry'] = str(int(dictor['FailRetry']) + 1)
-                    print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
+                    BTTest['FailRetry'] = str(int(BTTest['FailRetry']) + 1)
+                    print('测试循环次数：' + BTTest['FailRetry'], '，测试结果：fail！！！')
                     continue
 
                 # creatResult
                 support.creatResult(
                     Fixed=currentPath,
-                    ItemName=dictor['RUNITEM'],
+                    ItemName=BTTest['RUNITEM'],
                     Result=-1,
                     ItemTag=0
                 )
                 # setinfo
                 support.setinfo(
-                    RUNITEM=dictor['RUNITEM'],
+                    RUNITEM=BTTest['RUNITEM'],
                     SN=MB_SN,
                     Result='F',
                     NUM='0',
-                    LOGINFO=dictor['RUNITEM'] + ' Fail',
+                    LOGINFO=BTTest['RUNITEM'] + ' Fail',
                     Starttime=StartTime
                 )
                 print('测试循环次数:', n, '，测试结果：fail！！！！')
                 support.message(
-                    Code=dictor['Errorcode']
+                    Code=BTTest['Errorcode']
                 )
                 break
 
@@ -93,17 +91,17 @@ try:
                 # creatResult
                 support.creatResult(
                     Fixed=currentPath,
-                    ItemName=dictor['RUNITEM'],
+                    ItemName=BTTest['RUNITEM'],
                     Result=1,
                     ItemTag=0
                 )
                 # setinfo
                 support.setinfo(
-                    RUNITEM=dictor['RUNITEM'],
+                    RUNITEM=BTTest['RUNITEM'],
                     SN=MB_SN,
                     Result='P',
                     NUM='1',
-                    LOGINFO=dictor['RUNITEM'] + ' Pass',
+                    LOGINFO=BTTest['RUNITEM'] + ' Pass',
                     Starttime=StartTime
                 )
                 break

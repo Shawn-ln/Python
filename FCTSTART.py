@@ -1,45 +1,42 @@
 # Coding by LiXiao
-# Datatime:2/26/2021 5:37 PM
-# Filename:CheckBIOS.py
+# Datatime:21/04/14 10:58 AM
+# Filename:FCTSTART.py
 # Toolby: PyCharm
 import os
 import support
-"""
+
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
     'FailRetrytimes': '1',
     'UPLIMIT': '9999.900',
     'LOWLIMIT': '-9999.900',
-    'RUNITEM': 'CheckBIOS',
+    'RUNITEM': 'FCTSTART',
     'Errorcode': 'MBCF4',
-    'tool_path': r'C:\WinTest\Tools',
-    'instruct': 'call BiosVersion_x64.exe >BIOSVER.BAT',
-    'result_log_name': 'BIOSVER.BAT',
-    'check_item': 'BiosVersion',
-    'instruct1': 'call ECVersion_NB6067.exe',
-    'result_log_name1': 'ECVersion_NB6067.BAT',
-    'check_item1': 'EC_VER',
+    'tool_path': 'C:\WinTest\Tools',
+    'instruct': 'ShowPassFail.exe',
+    'result_log_name': 'FCTSTART.BAT',
+    'check_item': ''
 }
 support.write_json(
     data=dictor,
     path=r'C:\WinTest\JSON\data',
-    filename='CheckBIOS.json'
+    filename='FCTSTART.json'
 )
-"""
+
 try:
-    CheckBIOS = support.read_json(
+    FCTSTART = support.read_json(
         path=r'C:\WinTest\JSON\data',
-        filename='CheckBIOS.json'
+        filename='FCTSTART.json'
     )
-    print('CheckBIOS:', CheckBIOS)
+    print('FCTSTART:', FCTSTART)
     # 测试开始时间
     StartTime = support.titles(
-        RUNITEM=CheckBIOS['RUNITEM'],
+        RUNITEM=FCTSTART['RUNITEM'],
         stage='start'
     )
-    for i in CheckBIOS:
-        print(i + ' : ' + CheckBIOS[i])
+    for i in FCTSTART:
+        print(i + ' : ' + FCTSTART[i])
 
     # 脚本路径
     currentPath = os.getcwd()
@@ -50,11 +47,11 @@ try:
     MB_SN = support.getMBSN()
 
     # 判断是否有测试pass的log记录
-    if support.passlog(CheckBIOS['RUNITEM']):
+    if support.passlog(FCTSTART['RUNITEM']):
         # creatResult
         support.creatResult(
             Fixed=currentPath,
-            ItemName=CheckBIOS['RUNITEM'],
+            ItemName=FCTSTART['RUNITEM'],
             Result=1,
             ItemTag=0
         )
@@ -63,35 +60,17 @@ try:
         for n in range(1, 200):
             # 测试内容和结果
 
-            # 读取Model_ini.BAT中信息
-            BIOSver = support.get_ini_info(
-                param='BIOSver'
-            )
-            print(BIOSver)
-            ECver = support.get_ini_info(
-                param='ECver'
-            )
-            print(ECver)
-            print('测试正文')
-            chkbios = support.test(
-                tool_path=CheckBIOS['tool_path'],
-                act='read',
-                checklist='NO',
-                result_log_name=CheckBIOS['result_log_name'],
-                check_item=CheckBIOS['check_item'],
-                instruct=CheckBIOS['instruct'],
-                check_data=BIOSver
-            )
+
             chkec = support.test(
-                tool_path=CheckBIOS['tool_path'],
+                tool_path=FCTSTART['tool_path'],
                 act='read',
                 checklist='NO',
-                result_log_name=CheckBIOS['result_log_name1'],
-                check_item=CheckBIOS['check_item1'],
-                instruct=CheckBIOS['instruct1'],
-                check_data=ECver
+                result_log_name=FCTSTART['result_log_name1'],
+                check_item=FCTSTART['check_item1'],
+                instruct=FCTSTART['instruct1'],
+                check_data=‘
             )
-            chkec = chkbios[0:2] + chkec[2:]
+            chkec = FCTSTART[0:2] + chkec[2:]
             Errorcode = '.'
             result = 'fail'
             if chkbios == BIOSver:
@@ -192,4 +171,3 @@ except AttributeError as e:
 
 except Exception as e:
     print(e)
-

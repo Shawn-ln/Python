@@ -10,6 +10,25 @@ from shutil import copyfile
 import json
 
 
+def flash_bios(path, ver):
+    Chk_AC = test(
+        tool_path=path,
+        act='find',
+        checklist='NO',
+        result_log_name='ACstatus.bat',
+        check_item='AC_ST=ON_LINE',
+        instruct='CheckAC.exe /set >ACstatus.bat',
+        check_data=''
+    )
+    print(Chk_AC)
+    if Chk_AC:
+        os.chdir(path)
+        os.system('call %s_SMT.exe' % ver)
+    else:
+        ex = Exception('电源线未接入不可升级BIOS，请接入电源线先后重试')
+        # 抛出异常对象
+        raise ex
+
 def write_json(data, path, filename):
     os.chdir(path)
     del_log(path + '\\' + filename)
@@ -22,6 +41,60 @@ def write_json(data, path, filename):
             ensure_ascii=False
         )
     return True
+
+
+def del_log(log_path):
+    res = os.path.exists(log_path)
+    if res:
+        os.remove(log_path)
+        print('文件已成功删除！！！', log_path)
+    else:
+        print('文件不存在，无需删除！！！', log_path)
+    return
+
+
+def FileLog(item):
+    if os.path.exists(r'C:\WinTest\LogFile\Response.bat'):
+        print('Response.bat文件已找到！！！')
+    elif os.path.exists(r'C:\WinTest\Tools\Response.bat'):
+        print('Response.bat文件已找到！！！')
+    else:
+        ex = Exception('Response.bat文件未找到！！！')
+        # 抛出异常对象
+        raise ex
+    if not os.path.exists(r'C:\Wintest\LogFile\Filelog.log'):
+        count = 0
+    STAGE_CODE = 'MP'
+    lists = get_response_info(
+        lists=['MODEL', 'Line', 'STATION', 'STATUS', 'SN', 'WO', 'Cust_PN'],
+        date=['SET MODEL', 'SET LINE', 'SET STATION', 'SET STATUS', 'SET SN', 'SET WO', 'SET Cust_PN_1']
+    )
+    print('responselists:', lists)
+    if lists['Cust_PN'] == 'TBD':
+        STAGE_CODE = 'FVT'
+    if str(lists['MODEL']+'FVT') == lists['Cust_PN'][0:9]:
+        STAGE_CODE = 'FVT'
+    if str(lists['MODEL']+'SIT') == lists['Cust_PN'][0:9]:
+        STAGE_CODE = 'SIT'
+    if str(lists['MODEL']+'SVT') == lists['Cust_PN'][0:9]:
+        STAGE_CODE = 'SVT'
+    print(str(lists['MODEL']+'FVT'), lists['MODEL']+'FVT', lists['MODEL']+'SIT', lists['MODEL']+'SVT', lists['Cust_PN'][0:9], STAGE_CODE)
+    # write_json(
+    #     data=lists,
+    #     path=r'C:\WinTest\JSON\data',
+    #     filename='FileLog.json'
+    # )\
+
+
+def copy_log(source_path, target_path, act):
+    print('source_path:', source_path, 'target_path:', target_path)
+    with open(source_path, 'r+', encoding='utf-8') as f:
+        date = f.readlines()
+    print('date:', date)
+    with open(target_path,  act, encoding='utf-8') as g:
+        for line in date:
+            g.write(line)
+    return
 
 
 def read_json(path, filename):
@@ -61,7 +134,12 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
         result = dict()
         os.chdir(tool_path)
         res = os.system(instruct)
+        if not os.path.exists(result_log_name):
+            ex = Exception(result_log_name  + '不存在！！！')
+            # 抛出异常对象
+            raise ex
         print(instruct, res)
+
         for i in range(0, len(check_item)):
             print(check_item[i])
             if act == 'write':
@@ -95,6 +173,10 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
                     return True
             return False
         res = os.system(instruct)
+        if not os.path.exists(result_log_name):
+            ex = Exception(result_log_name  + '不存在！！！')
+            # 抛出异常对象
+            raise ex
         print(instruct, res)
         with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
             for line in f.readlines():
@@ -204,16 +286,6 @@ def get_response_info(lists, date):
     # ex = Exception(param + "信息在Response.bat未找到！！！")
     # # 抛出异常对象
     # raise ex
-
-
-def del_log(log_path):
-    res = os.path.exists(log_path)
-    if res:
-        os.remove(log_path)
-        print('文件已成功删除！！！', log_path)
-    else:
-        print('文件不存在，无需删除！！！', log_path)
-    return
 
 
 

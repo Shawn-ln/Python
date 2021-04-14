@@ -5,31 +5,18 @@
 import os
 import support
 
-# 开头模板信息
-dictor = {
-    'FailRetry': '0',
-    'FailRetrytimes': '10',
-    'UPLIMIT': '9999.900',
-    'LOWLIMIT': '-9999.900',
-    'RUNITEM': 'Lidswitch',
-    'Errorcode': 'MBCF4',
-    'tool_path': r'C:\WinTest\FFT\LidSwitch',
-    'instruct1': 'SwitchLid.exe -E',
-    'result_log_name1': 'LID.log',
-    'check_item1': 'Disable LID Successful',
-    'instruct2': 'WinLidSw.exe',
-    'result_log_name2': 'WinLidSw.log',
-    'check_item2': 'Result=PASS'
-}
-
 try:
+    dictor = support.read_json(
+        path=r'C:\WinTest\JSON\data',
+        filename='Lidswitch.json'
+    )
+    print('dictor:', dictor)
     # 测试开始时间
     StartTime = support.titles(
         RUNITEM=dictor['RUNITEM'],
         stage='start'
     )
-    for i in dictor:
-        print(i + ' : ' + dictor[i])
+
 
     # 脚本路径
     currentPath = os.getcwd()
@@ -57,6 +44,11 @@ try:
         print('LID:', LID)
         if LID:
             result = 'pass'
+            support.copy_log(
+                source_path=r'%s\%s' % (dictor['tool_path'], dictor['result_log_name2']),
+                target_path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                act='w'
+            )
         else:
             Errorcode = 'MBCF4'
             result = 'fail'
@@ -94,6 +86,8 @@ try:
             break
 
         elif result == 'pass':
+            # os.system(r'call \WinTest\tools\FileLog.cmd \WinTest\LogFile\%s.log' % dictor['RUNITEM'])
+            # dates = support.FileLog(item=dictor['RUNITEM'])
             print('测试循环次数:', n, '，测试结果：pass！！！')
             print('测试SN:', MB_SN)
             # creatResult
