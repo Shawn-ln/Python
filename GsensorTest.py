@@ -1,56 +1,84 @@
 # Coding by LiXiao
-# Datatime:3/4/2021 2:25 PM
-# Filename:Lidswitch.py
+# Datatime:21/04/15 11:07 AM
+# Filename:GsensorTest.py
 # Toolby: PyCharm
+
 import os
 import support
+
+# 开头模板信息
+dictor = {
+    'FailRetry': '0',
+    'FailRetrytimes': '1',
+    'UPLIMIT': '9999.900',
+    'LOWLIMIT': '-9999.900',
+    'RUNITEM': 'GsensorTest',
+    'Errorcode': 'MBCF4',
+    'tool_path': r'C:\WinTest\FFT\Sensors',
+    'instruct': 'GSensorTest.exe',
+    'result_log_name': 'GSensorTest.txt',
+    'check_item': 'Operation succeeded'
+}
+support.write_json(
+    data=dictor,
+    path=r'C:\WinTest\JSON\data',
+    filename='GSensorTest.json'
+)
+
 
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
-        filename='Lidswitch.json'
+        filename='GSensorTest.json'
     )
     print('dictor:', dictor)
+
+
     # 测试开始时间
     StartTime = support.titles(
         RUNITEM=dictor['RUNITEM'],
         stage='start'
     )
-
+    for i in dictor:
+        print(i + ' : ' + dictor[i])
 
     # 脚本路径
     currentPath = os.getcwd()
     # currentPath = r'C:\WinTest\Work'
     # print(currentPath)
 
-    # 读取主板写入的SN
+    # 读取主板写入的mbsn
     MB_SN = support.getSN()
 
     # 测试正文
     for n in range(1, 200):
         # 测试内容和结果
-
-        print('测试正文')
-        LID = support.test(
+        result = 'fail'
+        # Selftest
+        selfTest = support.test(
             tool_path=dictor['tool_path'],
             act='find',
             checklist='NO',
-            result_log_name=dictor['result_log_name2'],
-            check_item=dictor['check_item2'],
-            instruct=dictor['instruct2'],
-            check_data='PASS'
+            result_log_name=dictor['result_log_name'],
+            check_item=dictor['check_item'],
+            instruct=dictor['instruct'],
+            check_data=''
         )
-        Errorcode = '.'
-        print('LID:', LID)
-        if LID:
+        if selfTest:
+            print('GSensorTest pass!!!')
             result = 'pass'
-            support.copy_log(
-                source_path=r'%s\%s' % (dictor['tool_path'], dictor['result_log_name2']),
-                target_path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+            support.writr_log(
+                path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                date='*****************************************************\n************GSensorTest pass!!!*************************\n*****************************************************\n',
                 act='w'
             )
+            support.copy_log(
+                source_path=r'%s\%s' % (dictor['tool_path'], dictor['result_log_name']),
+                target_path='C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                act='a'
+            )
         else:
-            Errorcode = 'MBCF4'
+            print('GSensorTest fail!!!')
             result = 'fail'
 
         # 判断测试结果
@@ -65,7 +93,7 @@ try:
 
             # creatResult
             support.creatResult(
-                Fixed=currentPath,
+                Fixed=r'%~dp0',
                 ItemName=dictor['RUNITEM'],
                 Result=-1,
                 ItemTag=0
@@ -81,7 +109,7 @@ try:
             )
             print('测试循环次数:', n, '，测试结果：fail！！！！')
             support.message(
-                Code=Errorcode
+                Code=dictor['Errorcode']
             )
             break
 
@@ -92,7 +120,7 @@ try:
             print('测试SN:', MB_SN)
             # creatResult
             support.creatResult(
-                Fixed=currentPath,
+                Fixed=r'%~dp0',
                 ItemName=dictor['RUNITEM'],
                 Result=1,
                 ItemTag=0

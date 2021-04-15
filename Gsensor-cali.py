@@ -2,6 +2,7 @@
 # Datatime:21/04/14 11:09 AM
 # Filename:Gsensor-cali.py
 # Toolby: PyCharm
+
 import os
 import support
 """
@@ -53,7 +54,7 @@ try:
     # print(currentPath)
 
     # 读取主板写入的mbsn
-    MB_SN = support.getMBSN()
+    MB_SN = support.getSN()
 
     # 测试正文
     for n in range(1, 200):
@@ -78,7 +79,7 @@ try:
             )
             support.copy_log(
                 source_path=r'%s\%s' % (dictor['tool_path'], dictor['result_log_name']),
-                target_path='C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                target_path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
                 act='a'
             )
 
@@ -169,7 +170,8 @@ try:
             break
 
         elif result == 'pass':
-            os.system(r'call \WinTest\tools\FileLog.cmd \WinTest\LogFile\%s.log' % dictor['RUNITEM'])
+            # os.system(r'call \WinTest\tools\FileLog.cmd \WinTest\LogFile\%s.log' % dictor['RUNITEM'])
+            support.FileLog(item=dictor['RUNITEM'])
             print('测试循环次数:', n, '，测试结果：pass！！！')
             print('测试SN:', MB_SN)
             # creatResult

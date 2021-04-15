@@ -29,6 +29,7 @@ def flash_bios(path, ver):
         # 抛出异常对象
         raise ex
 
+
 def write_json(data, path, filename):
     os.chdir(path)
     del_log(path + '\\' + filename)
@@ -62,28 +63,77 @@ def FileLog(item):
         ex = Exception('Response.bat文件未找到！！！')
         # 抛出异常对象
         raise ex
-    if not os.path.exists(r'C:\Wintest\LogFile\Filelog.log'):
-        count = 0
+
     STAGE_CODE = 'MP'
-    lists = get_response_info(
+    responselists = get_response_info(
         lists=['MODEL', 'Line', 'STATION', 'STATUS', 'SN', 'WO', 'Cust_PN'],
         date=['SET MODEL', 'SET LINE', 'SET STATION', 'SET STATUS', 'SET SN', 'SET WO', 'SET Cust_PN_1']
     )
-    print('responselists:', lists)
-    if lists['Cust_PN'] == 'TBD':
+    print('responselists:', responselists)
+    if responselists['Cust_PN'] == 'TBD':
         STAGE_CODE = 'FVT'
-    if str(lists['MODEL']+'FVT') == lists['Cust_PN'][0:9]:
+    if str(responselists['MODEL'] + 'FVT') == responselists['Cust_PN'][0:9]:
         STAGE_CODE = 'FVT'
-    if str(lists['MODEL']+'SIT') == lists['Cust_PN'][0:9]:
+    if str(responselists['MODEL'] + 'SIT') == responselists['Cust_PN'][0:9]:
         STAGE_CODE = 'SIT'
-    if str(lists['MODEL']+'SVT') == lists['Cust_PN'][0:9]:
+    if str(responselists['MODEL'] + 'SVT') == responselists['Cust_PN'][0:9]:
         STAGE_CODE = 'SVT'
-    print(str(lists['MODEL']+'FVT'), lists['MODEL']+'FVT', lists['MODEL']+'SIT', lists['MODEL']+'SVT', lists['Cust_PN'][0:9], STAGE_CODE)
+    # print(str(lists['MODEL']+'FVT'), lists['MODEL']+'FVT', lists['MODEL']+'SIT', lists['MODEL']+'SVT', lists['Cust_PN'][0:9], STAGE_CODE)
     # write_json(
     #     data=lists,
     #     path=r'C:\WinTest\JSON\data',
-    #     filename='FileLog.json'
-    # )\
+    #     filename='FileLog_%s.json' % item
+    # )
+    i = str(datetime.datetime.now())
+    print(i)
+    date = i[0:10]
+    time = i[11:19]
+    print('date:', date, 'time:', time)
+    log_data = list()
+    count = 0
+    if not os.path.exists(r'C:\Wintest\LogFile\Filelog.log'):
+        log_data = ['[init...]',
+                    '\nSTARTDATE=' + date,
+                    '\nSTARTTIME=' + time,
+                    '\nPROJECT_NAME=' + responselists['MODEL'],
+                    '\nSTAGE_CODE=' + STAGE_CODE,
+                    '\nLINE=' + responselists['Line'],
+                    '\nSTATION=' + responselists['STATION'],
+                    '\nDEVICEID=' + responselists['STATUS'],
+                    '\nISN=' + responselists['SN'],
+                    '\nWO=' + responselists['WO'],
+                    '\n[------------------------------------ LOG START ------------------------------------]\n']
+        print(log_data)
+    else:
+        with open(r'C:\Wintest\LogFile\count.txt', 'r+', encoding='utf-8') as f:
+            data = f.readlines()
+            for line in data:
+                # print(line)
+                count = int(line[0:1]) + 1
+    log_data.append('%s %s\n' % (date, time))
+    log_data.append('[TESTITEM%s=%s]\n' % (count, item))
+    for x in range(0, len(log_data)):
+        print(log_data[x])
+    print('count:', count)
+    with open(r'C:\Wintest\LogFile\Filelog.log', 'a', encoding='utf-8') as f:
+        for i in range(0, len(log_data)):
+            f.write(log_data[i])
+    copy_log(
+        source_path=r'C:\WinTest\LogFile\%s.log' % item,
+        target_path=r'C:\Wintest\LogFile\Filelog.log',
+        act='a'
+    )
+    writr_log(
+        path=r'C:\WinTest\LogFile\count.txt',
+        date=str(count),
+        act='w'
+    )
+    writr_log(
+        path=r'C:\Wintest\LogFile\Filelog.log',
+        date='----------------------------------测试项分界线----------------------------------\n',
+        act='a'
+    )
+    return
 
 
 def copy_log(source_path, target_path, act):
@@ -91,7 +141,7 @@ def copy_log(source_path, target_path, act):
     with open(source_path, 'r+', encoding='utf-8') as f:
         date = f.readlines()
     print('date:', date)
-    with open(target_path,  act, encoding='utf-8') as g:
+    with open(target_path, act, encoding='utf-8') as g:
         for line in date:
             g.write(line)
     return
@@ -105,6 +155,7 @@ def read_json(path, filename):
         res = json.load(f)
         # print(type(res), res)
         return res
+
 
 def judge_battery(lowlimit, highlimit):
     if lowlimit > highlimit:
@@ -135,7 +186,7 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
         os.chdir(tool_path)
         res = os.system(instruct)
         if not os.path.exists(result_log_name):
-            ex = Exception(result_log_name  + '不存在！！！')
+            ex = Exception(result_log_name + '不存在！！！')
             # 抛出异常对象
             raise ex
         print(instruct, res)
@@ -162,7 +213,8 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
                         if act == 'read':
                             strs = re.sub(r'^.*=', '', line).strip()
                             result[check_item[i]] = strs
-
+                        if act == 'match':
+                            result = check_data[check_item[i]]
         return result
 
     elif checklist == 'NO':
@@ -174,7 +226,7 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
             return False
         res = os.system(instruct)
         if not os.path.exists(result_log_name):
-            ex = Exception(result_log_name  + '不存在！！！')
+            ex = Exception(result_log_name + '不存在！！！')
             # 抛出异常对象
             raise ex
         print(instruct, res)
@@ -198,7 +250,6 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
         ex = Exception('checklist参数错误，只能为Y/N，实际为:' + checklist)
         # 抛出异常对象
         raise ex
-
 
 
 def message(Code):
@@ -278,7 +329,7 @@ def get_response_info(lists, date):
                 print(date[i], line)
                 if date[i] in line:
                     # 截取'param='后面的内容
-                    sts = re.sub(r'^.*=', '', line).rstrip()    # rstrip()—>right strip(),清除了右边末尾的空格
+                    sts = re.sub(r'^.*=', '', line).rstrip()  # rstrip()—>right strip(),清除了右边末尾的空格
                     # print('sts:', sts)
                     result[lists[i]] = sts
                     break
@@ -288,13 +339,13 @@ def get_response_info(lists, date):
     # raise ex
 
 
-
 def MonitorAgent64(DatabaseServer, DatabaseName, system, station, step, RequestFilePath, SN):
     path = r'C:\WinTest\Tools'
     os.chdir(path)
     with open(RequestFilePath, 'w', encoding='utf-8', newline='') as f:
         f.write('MBSN=' + SN)
-    instruct1 = 'MonitorAgent64.exe %s %s %s %s %s %s' % (DatabaseServer, DatabaseName, system, station, step, RequestFilePath)
+    instruct1 = 'MonitorAgent64.exe %s %s %s %s %s %s' % (
+    DatabaseServer, DatabaseName, system, station, step, RequestFilePath)
     os.system(instruct1)
 
 
@@ -326,6 +377,7 @@ def disableIPV6():
     instruct6 = 'netsh advfirewall firewall add rule name="Block All LLMNR UDP Outbound" protocol=UDP remoteport=5355 dir=out action=block'
     os.system(instruct6)
     return
+
 
 def padsetting():
     os.chdir(r'C:\WinTest\Tools')
@@ -364,11 +416,11 @@ def titles(RUNITEM, stage):
     print('title: ' + str(RUNITEM) + ' is ' + str(stage) + ' running at ' + str(StartTimes))
     return StartTimes
 
+
 def writr_log(path, date, act):
     with open(path, act, encoding='utf-8', newline='') as f:
         f.write(date)
     return True
-
 
 
 def judge(FailRetry, FailRetrytimes):
@@ -393,8 +445,10 @@ def setinfo(RUNITEM, SN, Result, NUM, LOGINFO, Starttime):
     logname = str('TestLog_' + passfail + '.txt')
     with open(logname, 'a', encoding='utf-8', newline='') as f:
         # f.write('PAT_TEST,' + RUNITEM + ',' + SN + ',' + UPLIMIT + ',' + LOWLIMIT + ',' + passfail + ',' + NUM + ',' + LOGINFO + ',' + str(Starttime) + ',' + str(TestTimes) + '\n')
-        f.write('PAT_TEST,' + SN + ',' + RUNITEM + ',' + str(Starttime) + ',' + str(EndTimes) + ',' + Result + ',' + NUM + ',' + LOGINFO + ',' + str(TestTimes) + '\n')
+        f.write('PAT_TEST,' + SN + ',' + RUNITEM + ',' + str(Starttime) + ',' + str(
+            EndTimes) + ',' + Result + ',' + NUM + ',' + LOGINFO + ',' + str(TestTimes) + '\n')
         return
+
 
 def getMBSN():
     os.chdir(r'C:\WinTest\Tools')
@@ -529,6 +583,7 @@ def is_equal(read_list, check_list):
             print('"' + i + '"' + ' Check Fail,实际写入值为："' + read_list[i] + '"，应写入值为："' + check_list[i] + '"\n')
             return False
     return True
+
 
 def wrtUUID(value):
     os.chdir(r'C:\WinTest\Tools')

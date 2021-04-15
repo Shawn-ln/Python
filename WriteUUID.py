@@ -107,7 +107,8 @@ try:
                     checklist='NO',
                     check_item='Success',
                     check_data='Success!',
-                    instruct=struct)
+                    instruct=struct
+                )
                 print('writeuuid: ', writeuuid)
                 support.file_info(
                     file_path=r'C:\WinTest\LogFile',
