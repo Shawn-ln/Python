@@ -25,9 +25,16 @@ def flash_bios(path, ver):
         os.chdir(path)
         os.system('call %s_SMT.exe' % ver)
     else:
-        ex = Exception('电源线未接入不可升级BIOS，请接入电源线先后重试')
+        ex = Exception('电源线|电池未接入不可升级BIOS，请接入电源线先后重试')
         # 抛出异常对象
         raise ex
+
+
+def killer(lists):
+    for i in lists:
+        os.system('taskkill /f /im "%s" /t' % i)
+    return True
+
 
 
 def write_json(data, path, filename):
@@ -102,7 +109,7 @@ def FileLog(item):
                     '\nDEVICEID=' + responselists['STATUS'],
                     '\nISN=' + responselists['SN'],
                     '\nWO=' + responselists['WO'],
-                    '\n[------------------------------------ LOG START ------------------------------------]\n']
+                    '\n[=========================================== LOG START ===========================================]\n']
         print(log_data)
     else:
         with open(r'C:\Wintest\LogFile\count.txt', 'r+', encoding='utf-8') as f:
@@ -130,7 +137,7 @@ def FileLog(item):
     )
     writr_log(
         path=r'C:\Wintest\LogFile\Filelog.log',
-        date='----------------------------------测试项分界线----------------------------------\n',
+        date='\n===========================================测试项分界线===========================================\n\n',
         act='a'
     )
     return
@@ -215,6 +222,7 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
                             result[check_item[i]] = strs
                         if act == 'match':
                             result = check_data[check_item[i]]
+                            return result
         return result
 
     elif checklist == 'NO':
@@ -489,16 +497,16 @@ def creatResult(Fixed, ItemName, Result, ItemTag):
     os.system(getID)
     logname = ItemName + '.txt'
     # print(logname)
-    str = '.'
+    strs = '.'
     with open(logname, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if ItemName in line:
-                str = line
+                strs = line
                 # print(str)
     # os.remove(logname)
-    ItemID1 = re.sub(r'\|.*$', '', str)
+    ItemID1 = re.sub(r'\|.*$', '', strs)
     ItemID = re.sub(r'\D', '', ItemID1)
-    # print(ItemID)
+    print('ItemID:', ItemID)
 
     if rea == 0:
         para = "%s %s %s %d %s %s" % ("sdtCreateResult.exe", Fixed, ItemName, Result, ItemID, ItemTag)
