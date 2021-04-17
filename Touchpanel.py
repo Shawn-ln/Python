@@ -41,14 +41,14 @@ dictor = {
 support.write_json(
     data=dictor,
     path=r'C:\WinTest\JSON\data',
-    filename='Type-C_Port3.json'
+    filename='Touchpanel.json'
 )
 
 
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
-        filename='Type-C_Port3.json'
+        filename='Touchpanel.json'
     )
     print('dictor:', dictor)
 

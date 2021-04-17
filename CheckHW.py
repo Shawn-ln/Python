@@ -7,6 +7,85 @@ import os
 from shutil import copyfile
 import support
 
+"""
+dictor = {
+    'dictor':
+        {
+            'FailRetry': '0',
+            'FailRetrytimes': '0',
+            'UPLIMIT': '9999.900',
+            'LOWLIMIT': '-9999.900',
+            'RUNITEM': 'CheckHW',
+            'instruct': 'BlueTooth.exe',
+            'Errorcode': 'HT942',
+            'tool_path': r'C:\WinTest\Tools',
+            'ptd_chk_item': 'Activation',
+            'ptd_chk_data': 'Activation Successful',
+            'device_chk_struct': 'DeviceYellowCheck.exe >Device.bat',
+            'device_chk_item': 'CheckDevice',
+            'device_chk_data': 'CheckDevice=PASS',
+            'gpu_chk_stract': r'AT_VramInfo.exe >GPUinfo.BAT',
+            'gpu_check_list': ['VGA1Description', 'VGA1VGA_RAM'],
+            'cpu_chk_stract': 'PC_CPU.exe /set >CPU.BAT',
+            'cpu_check_list': ['CPU_Model', 'CPU_ID', 'CPU_Speed'],
+            'ram_chk_stract': 'SMBIOS.exe >RAM.BAT',
+            'ram_chk_list': ['RAMTotalSize', 'Slot1_Vendor', 'Slot1_RAMFrequency'],
+            'ssd_chk_stract': 'HDDInfo.exe >SSD.BAT',
+            'ssd_chk_list': ['HDD1_MD', 'HDD1_FW', 'HDD1_SZ'],
+            'lcd_chk_stract': 'EDID.exe >LCD.BAT',
+            'lcd_chk_list': ['LCDID'],
+            'wlan_check_list': ['PCI'],
+            'bt_check_list': ['USB\\VID'],
+            'fcam_check_list': ['USB\\VID'],
+            'ircam_check_list': ['USB\\VID'],
+            'batt_chk_stract': r'Battery.exe -A >BATT.BAT&Battery.exe -B >>BATT.BAT',
+            'batt_chk_list': ['BatteryDeviceName', 'BatteryDesignCapacity'],
+            'tpd_chk_stract_Synaptics': r'GetPackrat.exe /v /s 3 >FWversion.txt',
+            'tpd_chk_list_Synaptics': ['FW'],
+            'tpd_chk_stract_Elan': r'ElanFWVerReader.exe -autoclose 1',
+            'tpd_chk_list_Elan': ['0x']
+        },
+    'HWConfig': {
+        'CPUES': 'AMD',
+        'ODD': 'NO',
+        'CPU': 'OnBoard',
+        'GPU': 'NO',
+        'RAM': 'OnBoard',
+        'LCD': 'YES',
+        'LCM': 'NO',
+        'SSD': 'YES',
+        'HDD': 'NO',
+        'CAM': 'YES',
+        'IRCAM': 'YES',
+        'FCAM': 'NO',
+        'RCAM': 'NO',
+        'KB': 'YES',
+        'DOCKPN': 'NO',
+        'KBLT': 'YES',
+        'WLAN': 'OnBoard',
+        'BT': 'OnBoard',
+        'LTE': 'NO',
+        'FP': 'NO',
+        'TPFW': 'YES',
+        'PDFW': 'YES',
+        'TBTFW': 'YES',
+        'HDDC1': '1',
+        'HDDC2': '2'
+        },
+    'check_info': {
+        'get_response_info_list': ['ptdcode', 'MBPN', 'SSDPN', 'HDDPN', 'LCDPN', 'LCMPN', 'WIFIPN', 'FCAMPN', 'CAMPN', 'RCAMPN', 'BATTPN', 'TPPN', 'DOCKPN', 'KBPN'],
+        'get_response_info_data': ['SET ToolAuthenticationCodeByPSN=', 'SET MBPN=', 'SET SSDPN=', 'SET HDDPN=', 'SET LCDPN=', 'SET LCMPN=', 'SET WIFIPN=', 'SET FCAMPN=', 'SET CAMPN=', 'SET RCAMPN=', 'SET BATTPN=', 'SET TPPN=', 'SET DOCKPN=', 'SET KBPN='],
+        'log_name_list': ['MB.CSV', 'BATT.CSV', 'TPD.CSV', 'RAM.CSV'],
+        'data_list': ['cpu_info_list', 'batt_info_list', 'tpd_info_list', 'ram_info_list']
+        }
+}
+support.write_json(
+    data=dictor,
+    path=r'C:\WinTest\JSON\data',
+    filename='CheckHW.json'
+)
+"""
+
 try:
     result = 'fail'
     CheckHW = support.read_json(
@@ -19,8 +98,6 @@ try:
         RUNITEM=CheckHW['dictor']['RUNITEM'],
         stage='start'
     )
-    for i in CheckHW['dictor']:
-        print(i + ' : ' + CheckHW['dictor'][i])
 
     # 脚本路径
     currentPath = os.getcwd()
@@ -54,7 +131,8 @@ try:
                 ex = Exception('工具注册码获取失败！！！')
                 # 抛出异常对象
                 raise ex
-            param_list = [response_info_list['MBPN'], response_info_list['BATTPN'], response_info_list['TPPN'], response_info_list['MBPN']]
+            param_list = [response_info_list['MBPN'], response_info_list['BATTPN'], response_info_list['TPPN'],
+                          response_info_list['MBPN']]
             print('param_list:', param_list)
 
             # 获取LCD信息
@@ -173,14 +251,16 @@ try:
                 filename='HWinfo_mes.json'
             )
 
-            struct = 'PTDRegRun.exe %s >regist.txt' % response_info_list['ptdcode']
-            print(struct)
+            ptd_chk_struct = r'PTDRegRun.exe %s >regist.txt' % response_info_list['ptdcode']
+            ptd_chk_item = CheckHW['dictor']['ptd_chk_item']
+            ptd_chk_data = CheckHW['dictor']['ptd_chk_data']
+            print('ptd_chk_struct:', ptd_chk_struct)
             ptd_res = support.test(
                 tool_path=CheckHW['dictor']['tool_path'],
                 result_log_name='regist.txt',
                 act='find',
                 checklist='NO',
-                instruct=struct,
+                instruct=ptd_chk_struct,
                 check_item='Activation',
                 check_data='Activation Successful'
             )
@@ -195,7 +275,9 @@ try:
             support.del_log(
                 log_path=r'C:\WinTest\Tools\Device.bat'
             )
-            device_chk_struct = 'DeviceYellowCheck.exe >Device.bat'
+            device_chk_struct = CheckHW['dictor']['device_chk_struct']
+            device_chk_item = CheckHW['dictor']['device_chk_item']
+            device_chk_data = CheckHW['dictor']['device_chk_data']
             device_chk_res = support.test(
                 tool_path=CheckHW['dictor']['tool_path'],
                 result_log_name='Device.bat',
@@ -223,28 +305,81 @@ try:
                 # print('cpu_info:', cpu_info)
                 cpu_info_list = cpu_info.split(',')  # 用”,“将CPU信息分隔开
                 # print('cpu_info_list', cpu_info_list)
-                cpu_chk_stract = 'PC_CPU.exe /set >CPU.BAT'
-                check_list = ['CPU_Model', 'CPU_ID', 'CPU_Speed']
+                cpu_chk_stract = CheckHW['dictor']['cpu_chk_stract']
+                cpu_check_list = CheckHW['dictor']['cpu_check_list']
                 cpu_info_uut = support.test(
                     tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='CPU.BAT',
                     checklist='YES',
                     act='read',
                     instruct=cpu_chk_stract,
-                    check_item=check_list,
+                    check_item=cpu_check_list,
                     check_data=''
                 )
+                # 如果显卡类型为'UMA'
+                gpu_chk_stract = CheckHW['dictor']['gpu_chk_stract']
+                gpu_check_list = CheckHW['dictor']['gpu_check_list']
+                gpu_info_uut = support.test(
+                    tool_path=CheckHW['dictor']['tool_path'],
+                    result_log_name='GPUinfo.BAT',
+                    checklist='YES',
+                    act='read',
+                    instruct=gpu_chk_stract,
+                    check_item=gpu_check_list,
+                    check_data=''
+                )
+                if gpu_info_uut[gpu_check_list[0]] == cpu_info_list[4]:
+                    if gpu_info_uut[gpu_check_list[1]] == cpu_info_list[5]:
+                        print('GPU类型VGADescription检查PASS!!!MES定义VGADescription为:' + cpu_info_list[4] + ',实际组装VGADescription为:' + gpu_info_uut[gpu_check_list[0]])
+                        print('GPU类型VGA_RAM检查PASS!!!MES定义VGA_RAM为:' + cpu_info_list[5] + ',实际组装VGA_RAM类型为:' + gpu_info_uut[gpu_check_list[1]])
+                    else:
+                        code = 'MBCF2'
+                        msg1 = 'GPU类型VGA_RAM检查失败!!!MES定义VGA_RAM为:' + cpu_info_list[5] + ',实际组装VGA_RAM类型为:' + gpu_info_uut[gpu_check_list[1]]
+                        print(msg1)
+                        support.setmsg(
+                            Errorcode=code,
+                            msg=msg1
+                        )
+                        ex = Exception(msg1)
+                        # 抛出异常对象
+                        raise ex
+                else:
+                    code = 'MBCF2'
+                    msg1 = 'GPU类型VGADescription检查失败!!!MES定义VGADescription为:' + cpu_info_list[4] + ',实际组装VGADescription为:' + gpu_info_uut[gpu_check_list[0]]
+                    print(msg1)
+                    support.setmsg(
+                        Errorcode=code,
+                        msg=msg1
+                    )
+                    ex = Exception(msg1)
+                    # 抛出异常对象
+                    raise ex
+
+                print('gpu_info_uut:', gpu_info_uut)
+                print(len(gpu_check_list), gpu_check_list)
                 print('cpu_info_uut:', cpu_info_uut)
+                print('cpu_info_list', cpu_info_list)
                 if cpu_info_uut['CPU_Model'] == cpu_info_list[1]:
                     if cpu_info_uut['CPU_ID'][12:] == cpu_info_list[2]:
                         if cpu_info_uut['CPU_Speed'] == cpu_info_list[3]:
-                            print('CPU类型CPU_Speed检查PASS!!!' + 'MES定义CPU_Speed为:' + cpu_info_list[3] + ',实际组装CPU_Speed为:' + cpu_info_uut['CPU_Speed'])
+                            print(
+                                'CPU类型CPU_Speed检查PASS!!!' + 'MES定义CPU_Speed为:' + cpu_info_list[3] + ',实际组装CPU_Speed为:' + cpu_info_uut['CPU_Speed'])
                             print('CPU类型CPU_ID检查PASS!!!' + 'MES定义CPU_ID为:' + cpu_info_list[2] + ',实际组装CPU_ID类型为:' + cpu_info_uut['CPU_ID'][12:])
-                            print('CPU类型CPU_Model检查PASS!!!' + 'MES定义CPU_Model为:' + cpu_info_list[1]+ ',实际组装CPU_Model类型为:' + cpu_info_uut['CPU_Model'])
+                            print('CPU类型CPU_Model检查PASS!!!' + 'MES定义CPU_Model为:' + cpu_info_list[1] + ',实际组装CPU_Model类型为:' + cpu_info_uut['CPU_Model'])
                             copyfile(
                                 src=r'C:\WinTest\Tools\CPU.BAT',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_CPU.log'
                             )
+                            json = {
+                                'MBPN': cpu_info_list[0],
+                                'CPUTYPE': cpu_info_list[1],
+                                'CPUID': cpu_info_list[2],
+                                'MCCLOK': cpu_info_list[3],
+                                'GPUTYPE': cpu_info_list[4],
+                                'VRAMSIZE': cpu_info_list[5],
+                                'TPM': cpu_info_list[6]
+                            }
+                            print('json:', json)
                         else:
                             code = 'MBCF2'
                             msg1 = 'CPU_Speed检查失败,MES定义CPU_Speed为:' + cpu_info_list[3] + ',实际组装CPU_Speed为:' + cpu_info_uut['CPU_Speed']
@@ -271,7 +406,7 @@ try:
                 else:
                     code = 'MBCF2'
                     result = 'fail'
-                    msg1 = 'CPU_Model检查失败,MES定义CPU_Model为:' + cpu_info_list[1]+ ',实际组装CPU_Model类型为:' + cpu_info_uut['CPU_Model']
+                    msg1 = 'CPU_Model检查失败,MES定义CPU_Model为:' + cpu_info_list[1] + ',实际组装CPU_Model类型为:' + cpu_info_uut['CPU_Model']
                     print(msg1)
                     support.setmsg(
                         Errorcode=code,
@@ -288,15 +423,15 @@ try:
                 # print('ram_info:', ram_info)
                 ram_info_list = ram_info.split(',')  # 用”,“将RAM信息分隔开
                 # print('ram_info_list', ram_info_list)
-                ram_chk_stract = 'SMBIOS.exe >RAM.BAT'
-                check_list = ['RAMTotalSize', 'Slot1_Vendor', 'Slot1_RAMFrequency']
+                ram_chk_stract = CheckHW['dictor']['ram_chk_stract']
+                ram_chk_list = CheckHW['dictor']['ram_chk_list']
                 ram_info_uut = support.test(
                     tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='RAM.BAT',
                     act='read',
                     checklist='YES',
                     instruct=ram_chk_stract,
-                    check_item=check_list,
+                    check_item=ram_chk_list,
                     check_data=''
                 )
                 # print('ram_info_list', ram_info_list)
@@ -354,15 +489,15 @@ try:
                 # print('ssd_info:', ssd_info)
                 ssd_info_list = ssd_info.split(',')  # 用”,“将SSD信息分隔开
                 # print('ssd_info_list', ssd_info_list)
-                ssd_chk_stract = 'HDDInfo.exe >SSD.BAT'
-                check_list = ['HDD1_MD', 'HDD1_FW', 'HDD1_SZ']
+                ssd_chk_stract = CheckHW['dictor']['ssd_chk_stract']
+                ssd_chk_list = CheckHW['dictor']['ssd_chk_list']
                 ssd_info_uut = support.test(
                     tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='SSD.BAT',
                     checklist='YES',
                     act='read',
                     instruct=ssd_chk_stract,
-                    check_item=check_list,
+                    check_item=ssd_chk_list,
                     check_data=''
                 )
                 # print('ssd_info_uut:', ssd_info_uut)
@@ -418,15 +553,15 @@ try:
                 # print('lcd_info:', lcd_info)
                 lcd_info_list = lcd_info.split(',')  # 用”,“将LCD信息分隔开
                 # print('lcd_info_list', lcd_info_list)
-                lcd_chk_stract = 'EDID.exe >LCD.BAT'
-                check_list = ['LCDID']
+                lcd_chk_stract = CheckHW['dictor']['lcd_chk_stract']
+                lcd_chk_list = CheckHW['dictor']['lcd_chk_list']
                 lcd_info_uut = support.test(
                     tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='LCD.BAT',
                     checklist='YES',
                     act='read',
                     instruct=lcd_chk_stract,
-                    check_item=check_list,
+                    check_item=lcd_chk_list,
                     check_data=''
                 )
                 print('lcd_info_uut:', lcd_info_uut)
@@ -462,8 +597,8 @@ try:
                 # print('BT_HWID:', BT_HWID)
                 wlan_chk_stract = 'devcon.exe  find /i "PCI*" | find /i "%s" >WLAN.BAT' % WLAN_HWID
                 bt_chk_stract = 'devcon.exe  HWIDS "USB\VID*" | find /i "%s" >BT.BAT' % BT_HWID
-                wlan_check_list = ['PCI']
-                bt_check_list = ['USB\\VID']
+                wlan_check_list = CheckHW['dictor']['wlan_check_list']
+                bt_check_list = CheckHW['dictor']['bt_check_list']
                 wlan_info_uut = support.test(
                     tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='WLAN.BAT',
@@ -530,7 +665,7 @@ try:
                 FCAM_HWID = 'USB\\VID_%s&PID_%s&REV_%s&MI_00' % (fcam_info_list[2], fcam_info_list[3], fcam_info_list[4])
                 # print('FCAM_HWID:', FCAM_HWID)
                 fcam_chk_stract = 'devcon.exe  HWIDS "USB\\VID*" | find /i "%s" >FCAM.BAT' % FCAM_HWID
-                fcam_check_list = ['USB\\VID']
+                fcam_check_list = CheckHW['dictor']['fcam_check_list']
                 fcam_info_uut = support.test(
                     tool_path=CheckHW['dictor']['tool_path'],
                     result_log_name='FCAM.BAT',
@@ -551,7 +686,7 @@ try:
                         IRCAM_HWID = 'USB\\VID_%s&PID_%s&REV_%s&MI_02' % (fcam_info_list[2], fcam_info_list[3], fcam_info_list[4])
                         # print('IRCAM_HWID:', IRCAM_HWID)
                         ircam_chk_stract = 'devcon.exe  HWIDS "USB\\VID*" | find /i "%s" >IRCAM.BAT' % IRCAM_HWID
-                        ircam_check_list = ['USB\\VID']
+                        ircam_check_list = CheckHW['dictor']['ircam_check_list']
                         ircam_info_uut = support.test(
                             tool_path=CheckHW['dictor']['tool_path'],
                             result_log_name='IRCAM.BAT',
@@ -566,7 +701,8 @@ try:
                         # print('ircam_info_uut:', ircam_info_uut)
                         # print('IRCAM_HWID:', IRCAM_HWID)
                         if IRCAM_HWID == ircam_info_uut:
-                            print('IRCAM类型检查PASS!!!' + 'MES定义IRCAM_HWID为:' + IRCAM_HWID + ',实际组装IRCAM_HWID为:' + ircam_info_uut)
+                            print(
+                                'IRCAM类型检查PASS!!!' + 'MES定义IRCAM_HWID为:' + IRCAM_HWID + ',实际组装IRCAM_HWID为:' + ircam_info_uut)
                             copyfile(
                                 src=r'C:\WinTest\Tools\IRCAM.BAT',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_IRCAM.log'
@@ -607,15 +743,15 @@ try:
                 print('batt_info:', batt_info)
                 batt_info_list = batt_info.split(',')  # 用”,“将BATT信息分隔开
                 print('batt_info_list', batt_info_list)
-                batt_chk_stract = 'Battery.exe -A >BATT.BAT&Battery.exe -B >>BATT.BAT'
-                check_list = ['BatteryDeviceName', 'BatteryDesignCapacity']
+                batt_chk_stract = CheckHW['dictor']['batt_chk_stract']
+                batt_chk_list = CheckHW['dictor']['batt_chk_list']
                 batt_info_uut = support.test(
                     tool_path=r'C:\WinTest\FRT\Battery',
                     result_log_name='BATT.BAT',
                     checklist='YES',
                     act='read',
                     instruct=batt_chk_stract,
-                    check_item=check_list,
+                    check_item=batt_chk_list,
                     check_data=''
                 )
                 print('batt_info_uut:', batt_info_uut)
@@ -673,15 +809,15 @@ try:
                         support.del_log(r'C:\WinTest\Tools\FWversion.txt')
                         TPD_FW = 'FW Version: %s' % tpd_info_list[2]
                         print('TPD_FW:', TPD_FW)
-                        tpd_chk_stract = 'GetPackrat.exe /v /s 3 >FWversion.txt'
-                        check_list = ['FW']
+                        tpd_chk_stract_Synaptics = CheckHW['dictor']['tpd_chk_stract_Synaptics']
+                        tpd_chk_list_Synaptics = CheckHW['dictor']['tpd_chk_list_Synaptics']
                         tpd_info_uut = support.test(
                             tool_path=CheckHW['dictor']['tool_path'],
                             result_log_name='FWversion.txt',
                             checklist='YES',
                             act='read',
-                            instruct=tpd_chk_stract,
-                            check_item=check_list,
+                            instruct=tpd_chk_stract_Synaptics,
+                            check_item=tpd_chk_list_Synaptics,
                             check_data=''
                         )
                         print('tpd_info_uut:', tpd_info_uut)
@@ -708,15 +844,15 @@ try:
                         support.del_log(r'C:\WinTest\Tools\ElanFWVerReader.log')
                         TPD_FW = tpd_info_list[2]
                         print('TPD_FW:', TPD_FW)
-                        tpd_chk_stract = 'ElanFWVerReader.exe -autoclose 1'
-                        check_list = ['0x']
+                        tpd_chk_stract_Elan = CheckHW['dictor']['tpd_chk_stract_Elan']
+                        tpd_chk_list_Elan = CheckHW['dictor']['tpd_chk_list_Elan']
                         tpd_info_uut = support.test(
                             tool_path=CheckHW['dictor']['tool_path'],
                             result_log_name='ElanFWVerReader.log',
                             checklist='YES',
                             act='read',
-                            instruct=tpd_chk_stract,
-                            check_item=check_list,
+                            instruct=tpd_chk_stract_Elan,
+                            check_item=tpd_chk_list_Elan,
                             check_data=''
                         )
                         print('tpd_info_uut:', tpd_info_uut)
