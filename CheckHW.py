@@ -106,7 +106,9 @@ try:
 
     # 读取主板写入的mbsn
     MB_SN = support.getSN()
-
+    HWConfig = {
+        'SN': MB_SN
+    }
     # 判断是否有测试pass的log记录
     if support.passlog(CheckHW['dictor']['RUNITEM']):
         # creatResult
@@ -140,10 +142,12 @@ try:
                 CheckHW['check_info']['log_name_list'].append('LCD.CSV')
                 param_list.append(response_info_list['LCDPN'])
                 CheckHW['check_info']['data_list'].append('lcd_info_list')
+                LCD = response_info_list['LCDPN'] + '(LCDPN)'
             elif CheckHW['HWConfig']['LCM'] == 'YES':
                 CheckHW['check_info']['log_name_list'].append('LCD.CSV')
                 param_list.append(response_info_list['LCMPN'])
                 CheckHW['check_info']['data_list'].append('lcd_info_list')
+                LCD = response_info_list['LCMPN'] + '(LCMPN)'
             else:
                 ex = Exception('LCD信息获取失败，请检查"HWConfig"中定义信息！！！')
                 # 抛出异常对象
@@ -155,14 +159,17 @@ try:
                 CheckHW['check_info']['log_name_list'].append('SSD.CSV')
                 param_list.append(response_info_list['MBPN'])
                 CheckHW['check_info']['data_list'].append('ssd_info_list')
+                SSD = response_info_list['MBPN'] + '(MBPN)'
             elif CheckHW['HWConfig']['SSD'] == 'YES':
                 CheckHW['check_info']['log_name_list'].append('SSD.CSV')
                 param_list.append(response_info_list['SSDPN'])
                 CheckHW['check_info']['data_list'].append('ssd_info_list')
+                SSD = response_info_list['SSDPN'] + '(SSDPN)'
             elif CheckHW['HWConfig']['HDD'] == 'YES':
                 CheckHW['check_info']['log_name_list'].append('SSD.CSV')
                 param_list.append(response_info_list['HDDPN'])
                 CheckHW['check_info']['data_list'].append('ssd_info_list')
+                SSD = response_info_list['HDDPN'] + '(HDDPN)'
             else:
                 ex = Exception('SSD信息获取失败，请检查"HWConfig"中定义信息！！！')
                 # 抛出异常对象
@@ -174,10 +181,12 @@ try:
                 CheckHW['check_info']['log_name_list'].append('WLAN.CSV')
                 param_list.append(response_info_list['MBPN'])
                 CheckHW['check_info']['data_list'].append('wlan_info_list')
+                WLAN = response_info_list['MBPN'] + '(MBPN)'
             elif CheckHW['HWConfig']['WLAN'] == 'COMBO':
                 CheckHW['check_info']['log_name_list'].append('WLAN.CSV')
                 param_list.append(response_info_list['WIFIPN'])
                 CheckHW['check_info']['data_list'].append('wlan_info_list')
+                WLAN = response_info_list['WIFIPN'] + '(WIFIPN)'
             else:
                 ex = Exception('WLAN信息获取失败，请检查"HWConfig"中定义信息！！！')
                 # 抛出异常对象
@@ -189,10 +198,12 @@ try:
                 CheckHW['check_info']['log_name_list'].append('KB.CSV')
                 param_list.append(response_info_list['KBPN'])
                 CheckHW['check_info']['data_list'].append('kb_info_list')
+                KB = response_info_list['KBPN'] + '(KBPN)'
             elif CheckHW['HWConfig']['DOCKPN'] == 'YES':
                 CheckHW['check_info']['log_name_list'].append('KB.CSV')
                 param_list.append(response_info_list['DOCKPN'])
                 CheckHW['check_info']['data_list'].append('kb_info_list')
+                KB = response_info_list['DOCKPN'] + '(DOCKPN)'
             else:
                 ex = Exception('KB信息获取失败，请检查"HWConfig"中定义信息！！！')
                 # 抛出异常对象
@@ -204,10 +215,12 @@ try:
                 CheckHW['check_info']['log_name_list'].append('FCAM.CSV')
                 param_list.append(response_info_list['CAMPN'])
                 CheckHW['check_info']['data_list'].append('fcam_info_list')
+                FCAM = response_info_list['CAMPN'] + '(CAMPN)'
             elif CheckHW['HWConfig']['FCAM'] == 'YES':
                 CheckHW['check_info']['log_name_list'].append('FCAM.CSV')
                 param_list.append(response_info_list['FCAMPN'])
                 CheckHW['check_info']['data_list'].append('fcam_info_list')
+                FCAM = response_info_list['FCAMPN'] + '(FCAMPN)'
             else:
                 ex = Exception('FCAM信息获取失败，请检查"HWConfig"中定义信息！！！')
                 # 抛出异常对象
@@ -219,10 +232,12 @@ try:
                 CheckHW['check_info']['log_name_list'].append('RCAM.CSV')
                 param_list.append(response_info_list['RCAMPN'])
                 CheckHW['check_info']['data_list'].append('rcam_info_list')
+                RCAM = response_info_list['RCAMPN'] + '(RCAMPN)'
             elif CheckHW['HWConfig']['RCAM'] == 'YES':
                 CheckHW['check_info']['log_name_list'].append('RCAM.CSV')
                 param_list.append(response_info_list['RCAMPN'])
                 CheckHW['check_info']['data_list'].append('rcam_info_list')
+                RCAM = response_info_list['RCAMPN'] + '(RCAMPN)'
             elif CheckHW['HWConfig']['RCAM'] == 'NO':
                 print('此配置不带后摄,无需获取RCAM信息！！！')
             else:
@@ -295,7 +310,7 @@ try:
                 )
             else:
                 print('Device check fail!!!')
-                Errorcode = 'Yellow'
+                Errorcode = '设备管理器有黄标，或是工具运行不了，请逐个排查！！！'
                 result = 'fail'
 
             if Errorcode == '.':
@@ -316,7 +331,7 @@ try:
                     check_item=cpu_check_list,
                     check_data=''
                 )
-                # 如果显卡类型为'UMA'
+                # 显卡类型检查
                 gpu_chk_stract = CheckHW['dictor']['gpu_chk_stract']
                 gpu_check_list = CheckHW['dictor']['gpu_check_list']
                 gpu_info_uut = support.test(
@@ -370,7 +385,7 @@ try:
                                 src=r'C:\WinTest\Tools\CPU.BAT',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_CPU.log'
                             )
-                            json = {
+                            json_cpu = {
                                 'MBPN': cpu_info_list[0],
                                 'CPUTYPE': cpu_info_list[1],
                                 'CPUID': cpu_info_list[2],
@@ -379,7 +394,9 @@ try:
                                 'VRAMSIZE': cpu_info_list[5],
                                 'TPM': cpu_info_list[6]
                             }
-                            print('json:', json)
+                            HWConfig['Config_CPU'] = json_cpu
+
+                            print('HWConfig:', HWConfig)
                         else:
                             code = 'MBCF2'
                             msg1 = 'CPU_Speed检查失败,MES定义CPU_Speed为:' + cpu_info_list[3] + ',实际组装CPU_Speed为:' + cpu_info_uut['CPU_Speed']
@@ -447,6 +464,13 @@ try:
                                 src=r'C:\WinTest\Tools\RAM.BAT',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_RAM.log'
                             )
+                            json_ram = {
+                                'MB料号': ram_info_list[0],
+                                '内存厂商': ram_info_list[1],
+                                '内存容量': ram_info_list[2],
+                                '内存频率': ram_info_list[3]
+                            }
+                            HWConfig['Config_RAM'] = json_ram
                         else:
                             code = 'MBCF3'
                             msg1 = 'RAMFrequency检查失败,MES定义RAMFrequency为:' + ram_info_list[3] + ',实际组装RAMFrequency为:' + ram_info_uut['Slot1_RAMFrequency']
@@ -512,6 +536,13 @@ try:
                                 src=r'C:\WinTest\Tools\SSD.BAT',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_SSD.log'
                             )
+                            json_ssd = {
+                                'SSD料号': SSD,
+                                'SSD型号': ssd_info_list[1],
+                                'SSD容量': ssd_info_list[2],
+                                'SSD分位': ssd_info_list[3]
+                            }
+                            HWConfig['Config_SSD'] = json_ssd
                         else:
                             code = 'MBCF2'
                             msg1 = 'HDD1_SZ检查失败,MES定义HDD1_SZ为:' + ssd_info_list[2] + ',实际组装HDD1_SZ为:' + ssd_info_uut['HDD1_SZ']
@@ -572,6 +603,14 @@ try:
                         src=r'C:\WinTest\Tools\LCD.BAT',
                         dst=r'C:\WinTest\LogFile' + '\\' + 'Check_LCD.log'
                     )
+                    json_lcd = {
+                        'LCD料号': LCD,
+                        'LCD类型': lcd_info_list[1],
+                        'LCD厂商': lcd_info_list[3],
+                        'LCDEDID': lcd_info_list[2],
+                        'LCD功能': lcd_info_list[4]
+                    }
+                    HWConfig['Config_LCD'] = json_lcd
                 else:
                     code = 'MBCF2'
                     msg1 = 'LCD类型检查失败,MES定义LCDID为:' + lcd_info_list[2] + ',实际组装LCDID为:' + lcd_info_uut['LCDID'][8:]
@@ -590,7 +629,7 @@ try:
                 wlan_info = csv_info_list['wlan_info_list']
                 # print('wlan_info:', wlan_info)
                 wlan_info_list = wlan_info.split(',')  # 用”,“将WLAN信息分隔开
-                # print('wlan_info_list', wlan_info_list)
+                print('wlan_info_list', wlan_info_list)
                 WLAN_HWID = 'PCI\\VEN_%s&DEV_%s&SUBSYS_%s%s' % (wlan_info_list[3], wlan_info_list[4], wlan_info_list[5], wlan_info_list[6])
                 BT_HWID = 'USB\\VID_%s&PID_%s&REV_%s' % (wlan_info_list[7], wlan_info_list[8], wlan_info_list[9])
                 # print('WLAN_HWID:', WLAN_HWID)
@@ -625,6 +664,13 @@ try:
                         src=r'C:\WinTest\Tools\WLAN.BAT',
                         dst=r'C:\WinTest\LogFile' + '\\' + 'Check_WLAN.log'
                     )
+                    json_wlan = {
+                        'WLAN料号': WLAN,
+                        'WLAN型号': wlan_info_list[1] + wlan_info_list[2],
+                        'WLANID': WLAN_HWID,
+                        'BTID': BT_HWID
+                    }
+                    HWConfig['Config_WLAN'] = json_wlan
                 else:
                     code = 'MBCF2'
                     msg1 = 'WLAN类型WLAN_HWID检查失败,MES定义WLAN_HWID为:' + wlan_info_list[2] + ',实际组装WLAN_HWID为:' + wlan_info_uut['LCDID'][8:]
@@ -920,6 +966,12 @@ try:
                     ex = Exception('KB类型信息获取失败，请检查CheckHW.json中的KB配置信息！！！')
                     # 抛出异常对象
                     raise ex
+
+            support.write_json(
+                data=HWConfig,
+                path=r'c:\WinTest\LogFile',
+                filename='HWConfig.json'
+            )
 
             # 判断测试结果
             if result == 'fail':

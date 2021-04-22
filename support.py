@@ -92,7 +92,7 @@ def FileLog(item):
     #     filename='FileLog_%s.json' % item
     # )
     i = str(datetime.datetime.now())
-    print(i)
+    # print(i)
     date = i[0:10]
     time = i[11:19]
     print('date:', date, 'time:', time)
@@ -112,6 +112,10 @@ def FileLog(item):
                     '\n[=========================================== LOG START ===========================================]\n']
         print(log_data)
     else:
+        if not os.path.exists(r'C:\Wintest\LogFile\count.txt'):
+            ex = Exception(r'即将打开的文件 C:\Wintest\LogFile\count.txt 不存在！！！')
+            # 抛出异常对象
+            raise ex
         with open(r'C:\Wintest\LogFile\count.txt', 'r+', encoding='utf-8') as f:
             data = f.readlines()
             for line in data:
@@ -145,6 +149,7 @@ def FileLog(item):
 
 def copy_log(source_path, target_path, act):
     print('source_path:', source_path, 'target_path:', target_path)
+
     with open(source_path, 'r+', encoding='utf-8') as f:
         date = f.readlines()
     print('date:', date)
@@ -155,6 +160,10 @@ def copy_log(source_path, target_path, act):
 
 
 def read_json(path, filename):
+    if not os.path.exists(r'%s\%s' % (path, filename)):
+        ex = Exception(r'即将打开的文件 %s\%s 不存在！！！' % (path, filename))
+        # 抛出异常对象
+        raise ex
     os.chdir(path)
     with open(filename, 'r+', encoding='utf-8') as f:
         # print(f.readlines())
@@ -174,6 +183,10 @@ def judge_battery(lowlimit, highlimit):
     res = os.system(instruct)
     print('res', res)
     rsoc = '.'
+    if not os.path.exists(r'C:\win\FRTITEM\Battery\battery.log'):
+        ex = Exception(r'即将打开的文件 C:\win\FRTITEM\Battery\battery.log 不存在！！！')
+        # 抛出异常对象
+        raise ex
     with open('battery.log', 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if 'RSOC:' in line:
@@ -205,6 +218,10 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
                     if f.write(check_data) == 0:
                         return True
                 return False
+            if not os.path.exists(r'%s\%s' % (tool_path, result_log_name)):
+                ex = Exception(r'即将打开的文件 %s\%s 不存在！！！' % (tool_path, result_log_name))
+                # 抛出异常对象
+                raise ex
             with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
                 for line in f.readlines():
                     print(line)
@@ -238,6 +255,10 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
             # 抛出异常对象
             raise ex
         print(instruct, res)
+        if not os.path.exists(r'%s\%s' % (tool_path, result_log_name)):
+            ex = Exception(r'即将打开的文件 %s\%s 不存在！！！' % (tool_path, result_log_name))
+            # 抛出异常对象
+            raise ex
         with open(result_log_name, 'r', encoding='utf-8', newline='') as f:
             for line in f.readlines():
                 print(line)
@@ -279,6 +300,10 @@ def getMAC(MACID):
     instruct = 'WirelessBT-Mac_x86.exe 0 >WIFIBTMAC.BAT'
     os.system(instruct)
     strs = '.'
+    if not os.path.exists(r'C:\WinTest\Tools\WIFIBTMAC.BAT'):
+        ex = Exception(r'即将打开的文件 C:\WinTest\Tools\WIFIBTMAC.BAT 不存在！！！')
+        # 抛出异常对象
+        raise ex
     with open('WIFIBTMAC.BAT', 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if MACID in line:
@@ -295,12 +320,20 @@ def file_info(file_path, act, file_name, param):
             if f.write(param):
                 return True
     if act == 'read':
+        if not os.path.exists(r'%s\%s' % (file_path, file_name)):
+            ex = Exception(r'即将打开的文件 %s\%s 不存在！！！' % (file_path, file_name))
+            # 抛出异常对象
+            raise ex
         with open(file_name, 'r', encoding='utf-8', newline='') as f:
             for line in f.readlines():
                 if param in line:
                     strs = re.sub(r'^.*=', '', line).strip()
                     return strs
     if act == 'find':
+        if not os.path.exists(r'%s\%s' % (file_path, file_name)):
+            ex = Exception(r'即将打开的文件 %s\%s 不存在！！！' % (file_path, file_name))
+            # 抛出异常对象
+            raise ex
         with open(file_name, 'r', encoding='utf-8', newline='') as f:
             for line in f.readlines():
                 if param in line:
@@ -314,6 +347,10 @@ def get_csv_info(log_name_list, param_list, data_list):
     os.chdir(r'C:\WinTest\HW\HWDATA')
     result = dict()
     for i in range(0, len(log_name_list)):
+        if not os.path.exists(r'C:\WinTest\HW\HWDATA\%s' % log_name_list[i]):
+            ex = Exception(r'即将打开的文件 C:\WinTest\HW\HWDATA\%s 不存在！！！' % log_name_list[i])
+            # 抛出异常对象
+            raise ex
         with open(log_name_list[i], 'r', encoding='utf-8', newline='') as f:
             for line in f.readlines():
                 if param_list[i] in line:
@@ -331,6 +368,10 @@ def get_response_info(lists, date):
     log_name = 'Response.bat'
     result = dict()
     for i in range(0, len(lists)):
+        if not os.path.exists(r'C:\WinTest\Tools\%s' % log_name):
+            ex = Exception(r'即将打开的文件 C:\WinTest\Tools\%s 不存在！！！' % log_name)
+            # 抛出异常对象
+            raise ex
         with open(log_name, 'r', encoding='utf-8', newline='') as f:
             for line in f.readlines():
                 sts = '.'
@@ -360,6 +401,10 @@ def MonitorAgent64(DatabaseServer, DatabaseName, system, station, step, RequestF
 def get_ini_info(param):
     os.chdir(r'C:\WinTest')
     logname = 'Model_ini.BAT'
+    if not os.path.exists(r'C:\WinTest\Model_ini.BAT'):
+        ex = Exception(r'即将打开的文件 C:\WinTest\Model_ini.BAT 不存在！！！')
+        # 抛出异常对象
+        raise ex
     with open(logname, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if param in line:
@@ -463,6 +508,10 @@ def getMBSN():
     instruct = 'EEPROM64.exe -g -mbsn -f mbsn.txt'
     os.system(instruct)
     log_name = 'mbsn.txt'
+    if not os.path.exists(r'C:\WinTest\Tools\%s' % log_name):
+        ex = Exception(r'即将打开的文件 C:\WinTest\Tools\%s 不存在！！！' % log_name)
+        # 抛出异常对象
+        raise ex
     with open(log_name, 'r', encoding='utf-8', newline='') as f:
         for line in f:
             mbsn = line
@@ -479,6 +528,10 @@ def getSN():
     # print(instruct, r.readlines())
     os.system(instruct)
     log_name = 'SN.txt'
+    if not os.path.exists(r'C:\WinTest\Tools\%s' % log_name):
+        ex = Exception(r'即将打开的文件 C:\WinTest\Tools\%s 不存在！！！' % log_name)
+        # 抛出异常对象
+        raise ex
     with open(log_name, 'r', encoding='utf-8', newline='') as f:
         for line in f:
             SN = line
@@ -495,10 +548,14 @@ def creatResult(Fixed, ItemName, Result, ItemTag):
     getID = 'sdtCheckResult.exe /a>' + ItemName + '.txt'
     # print(getID)
     os.system(getID)
-    logname = ItemName + '.txt'
+    log_name = ItemName + '.txt'
     # print(logname)
     strs = '.'
-    with open(logname, 'r', encoding='utf-8', newline='') as f:
+    if not os.path.exists(r'C:\WinTest\TestStand\%s' % log_name):
+        ex = Exception(r'即将打开的文件 C:\WinTest\TestStand\%s 不存在！！！' % log_name)
+        # 抛出异常对象
+        raise ex
+    with open(log_name, 'r', encoding='utf-8', newline='') as f:
         for line in f.readlines():
             if ItemName in line:
                 strs = line
@@ -512,7 +569,6 @@ def creatResult(Fixed, ItemName, Result, ItemTag):
         para = "%s %s %s %d %s %s" % ("sdtCreateResult.exe", Fixed, ItemName, Result, ItemID, ItemTag)
         print(para)
         os.system(para)
-        res = ''
         if Result == 1:
             res = 'Pass'
         elif Result == -1:
@@ -525,7 +581,7 @@ def creatResult(Fixed, ItemName, Result, ItemTag):
         target = r'C:\WinTest\Log' + '\\' + ItemName + res + '.log'
         # 复制 sdtCreateResult.log
         copyfile(r'sdtCreateResult.log', target)
-        return 0
+        return res
     if rea == 1:
         ex = Exception("TestStand.exe窗口不存在！！！")
         # 抛出异常对象
@@ -566,6 +622,10 @@ def getDMI(var_list):
         res = os.system(instruct)
         if res == 0:
             strs = '.'
+            if not os.path.exists(r'C:\WinTest\Tools\%s' % filename):
+                ex = Exception(r'即将打开的文件 C:\WinTest\Tools\%s 不存在！！！' % filename)
+                # 抛出异常对象
+                raise ex
             with open(filename, 'r', encoding='utf-8', newline='') as f:
                 for line in f.readlines():
                     strs = line.strip()

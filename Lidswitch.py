@@ -10,7 +10,7 @@ try:
         path=r'C:\WinTest\JSON\data',
         filename='Lidswitch.json'
     )
-    print('dictor:', dictor)
+    # print('dictor:', dictor)
     # 测试开始时间
     StartTime = support.titles(
         RUNITEM=dictor['RUNITEM'],
