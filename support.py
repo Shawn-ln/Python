@@ -372,7 +372,7 @@ def get_response_info(lists, date):
             ex = Exception(r'即将打开的文件 C:\WinTest\Tools\%s 不存在！！！' % log_name)
             # 抛出异常对象
             raise ex
-        with open(log_name, 'r', encoding='utf-8', newline='') as f:
+        with open(log_name, 'r', encoding='ANSI', newline='') as f:
             for line in f.readlines():
                 sts = '.'
                 print(date[i], line)

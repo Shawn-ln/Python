@@ -51,12 +51,12 @@ dictor = {
         'CPU': 'OnBoard',
         'GPU': 'NO',
         'RAM': 'OnBoard',
-        'LCD': 'YES',
-        'LCM': 'NO',
+        'LCD': 'NO',
+        'LCM': 'YES',
         'SSD': 'YES',
         'HDD': 'NO',
         'CAM': 'YES',
-        'IRCAM': 'YES',
+        'IRCAM': 'NO',
         'FCAM': 'NO',
         'RCAM': 'NO',
         'KB': 'YES',
@@ -92,7 +92,7 @@ try:
         path=r'C:\WinTest\JSON\data',
         filename='CheckHW.json'
     )
-    print(CheckHW)
+    # print(CheckHW)
     # 测试开始时间
     StartTime = support.titles(
         RUNITEM=CheckHW['dictor']['RUNITEM'],
@@ -133,8 +133,7 @@ try:
                 ex = Exception('工具注册码获取失败！！！')
                 # 抛出异常对象
                 raise ex
-            param_list = [response_info_list['MBPN'], response_info_list['BATTPN'], response_info_list['TPPN'],
-                          response_info_list['MBPN']]
+            param_list = [response_info_list['MBPN'], response_info_list['BATTPN'], response_info_list['TPPN'], response_info_list['MBPN']]
             print('param_list:', param_list)
 
             # 获取LCD信息
@@ -345,6 +344,10 @@ try:
                 )
                 if gpu_info_uut[gpu_check_list[0]] == cpu_info_list[4]:
                     if gpu_info_uut[gpu_check_list[1]] == cpu_info_list[5]:
+                        copyfile(
+                            src=r'C:\WinTest\Tools\GPUinfo.BAT',
+                            dst=r'C:\WinTest\LogFile' + '\\' + 'Check_GPU.log'
+                        )
                         print('GPU类型VGADescription检查PASS!!!MES定义VGADescription为:' + cpu_info_list[4] + ',实际组装VGADescription为:' + gpu_info_uut[gpu_check_list[0]])
                         print('GPU类型VGA_RAM检查PASS!!!MES定义VGA_RAM为:' + cpu_info_list[5] + ',实际组装VGA_RAM类型为:' + gpu_info_uut[gpu_check_list[1]])
                     else:
@@ -595,6 +598,7 @@ try:
                     check_item=lcd_chk_list,
                     check_data=''
                 )
+                # print("csv_info_list:", csv_info_list)
                 print('lcd_info_uut:', lcd_info_uut)
                 print('lcd_info_list:', lcd_info_list)
                 if lcd_info_uut['LCDID'][8:] == lcd_info_list[2]:
@@ -630,10 +634,10 @@ try:
                 # print('wlan_info:', wlan_info)
                 wlan_info_list = wlan_info.split(',')  # 用”,“将WLAN信息分隔开
                 print('wlan_info_list', wlan_info_list)
-                WLAN_HWID = 'PCI\\VEN_%s&DEV_%s&SUBSYS_%s%s' % (wlan_info_list[3], wlan_info_list[4], wlan_info_list[5], wlan_info_list[6])
-                BT_HWID = 'USB\\VID_%s&PID_%s&REV_%s' % (wlan_info_list[7], wlan_info_list[8], wlan_info_list[9])
-                # print('WLAN_HWID:', WLAN_HWID)
-                # print('BT_HWID:', BT_HWID)
+                WLAN_HWID = 'PCI\\VEN_%s&DEV_%s&SUBSYS_%s%s&REV_%s' % (wlan_info_list[3], wlan_info_list[4], wlan_info_list[5], wlan_info_list[6], wlan_info_list[7])
+                BT_HWID = 'USB\\VID_%s&PID_%s&REV_%s' % (wlan_info_list[8], wlan_info_list[9], wlan_info_list[10])
+                print('WLAN_HWID:', WLAN_HWID)
+                print('BT_HWID:', BT_HWID)
                 wlan_chk_stract = 'devcon.exe  find /i "PCI*" | find /i "%s" >WLAN.BAT' % WLAN_HWID
                 bt_chk_stract = 'devcon.exe  HWIDS "USB\VID*" | find /i "%s" >BT.BAT' % BT_HWID
                 wlan_check_list = CheckHW['dictor']['wlan_check_list']
@@ -656,8 +660,10 @@ try:
                     check_item=bt_check_list,
                     check_data=''
                 )
+                print('bt_info_uut:', bt_info_uut, 'wlan_info_uut:', wlan_info_uut)
                 bt_info_uut = bt_info_uut['USB\\VID']
-                wlan_info_uut = wlan_info_uut['PCI'].split(':')[0].split('&')[0] + '&' + wlan_info_uut['PCI'].split(':')[0].split('&')[1] + '&' + wlan_info_uut['PCI'].split(':')[0].split('&')[2]
+                wlan_info_uut = wlan_info_uut['PCI'].split(':')[0].split('&')[0] + '&' + wlan_info_uut['PCI'].split(':')[0].split('&')[1] + '&' + wlan_info_uut['PCI'].split(':')[0].split('&')[2] + '&' + wlan_info_uut['PCI'].split(':')[0].split('&')[3].split('\\')[0]
+                print('bt_info_uut:', bt_info_uut, 'wlan_info_uut:', wlan_info_uut)
                 if WLAN_HWID == wlan_info_uut:
                     print('WLAN类型检查PASS!!!' + 'MES定义WLAN_HWID为:' + WLAN_HWID + ',实际组装WLAN_HWID为:' + wlan_info_uut)
                     copyfile(
@@ -707,7 +713,7 @@ try:
                 fcam_info = csv_info_list['fcam_info_list']
                 # print('fcam_info:', fcam_info)
                 fcam_info_list = fcam_info.split(',')  # 用”,“将FCAM信息分隔开
-                # print('fcam_info_list', fcam_info_list)
+                print('fcam_info_list', fcam_info_list)
                 FCAM_HWID = 'USB\\VID_%s&PID_%s&REV_%s&MI_00' % (fcam_info_list[2], fcam_info_list[3], fcam_info_list[4])
                 # print('FCAM_HWID:', FCAM_HWID)
                 fcam_chk_stract = 'devcon.exe  HWIDS "USB\\VID*" | find /i "%s" >FCAM.BAT' % FCAM_HWID
@@ -753,6 +759,11 @@ try:
                                 src=r'C:\WinTest\Tools\IRCAM.BAT',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_IRCAM.log'
                             )
+                            json_ircam = {
+                                'IRCAM料号': FCAM,
+                                'IRCAMHWID': IRCAM_HWID
+                            }
+                            HWConfig['Config_IRCAM'] = json_ircam
                         else:
                             code = 'MBCF2'
                             msg1 = 'IRCAM类型IRCAM_HWID检查失败,MES定义IRCAM_HWID为:' + IRCAM_HWID + ',实际组装IRCAM_HWID为:' + ircam_info_uut
@@ -770,6 +781,11 @@ try:
                         src=r'C:\WinTest\Tools\FCAM.BAT',
                         dst=r'C:\WinTest\LogFile' + '\\' + 'Check_FCAM.log'
                     )
+                    json_fcam = {
+                        'FCAM料号': FCAM,
+                        'FCAMHWID': FCAM_HWID
+                    }
+                    HWConfig['Config_FCAM'] = json_fcam
                 else:
                     code = 'MBCF2'
                     msg1 = 'FCAM类型FCAM_HWID检查失败,MES定义FCAM_HWID为:' + FCAM_HWID + ',实际组装FCAM_HWID为:' + fcam_info_uut
@@ -810,7 +826,12 @@ try:
                             src=r'C:\WinTest\FRT\Battery\BATT.BAT',
                             dst=r'C:\WinTest\LogFile' + '\\' + 'Check_BATT.log'
                         )
-
+                        json_batt = {
+                            'BATT料号': batt_info_list[0],
+                            'BattName': batt_info_list[2],
+                            'DesignCap': batt_info_list[3]
+                        }
+                        HWConfig['Config_BATT'] = json_batt
                     else:
                         code = 'MBCF2'
                         msg1 = 'BatteryDesignCapacity检查失败,MES定义BatteryDesignCapacity为:' + batt_info_list[3] + ',实际组装BatteryDesignCapacity为:' + batt_info_uut['BatteryDesignCapacity']
@@ -873,6 +894,12 @@ try:
                                 src=r'C:\WinTest\Tools\FWversion.txt',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_TPD.log'
                             )
+                            json_tpd = {
+                                'TPD料号': tpd_info_list[0],
+                                'TPDVendor': tpd_info_list[1],
+                                'TPDFW=': tpd_info_list[2]
+                            }
+                            HWConfig['Config_TPD'] = json_tpd
 
                         else:
                             code = 'MBCF2'
@@ -886,7 +913,7 @@ try:
                             # 抛出异常对象
                             raise ex
 
-                    elif tpd_info_list[1] == 'Elan':
+                    elif tpd_info_list[1] == 'ELAN':
                         support.del_log(r'C:\WinTest\Tools\ElanFWVerReader.log')
                         TPD_FW = tpd_info_list[2]
                         print('TPD_FW:', TPD_FW)
@@ -902,15 +929,21 @@ try:
                             check_data=''
                         )
                         print('tpd_info_uut:', tpd_info_uut)
-                        if tpd_info_uut['FW'] == TPD_FW:
-                            print('TPD类型检查PASS!!!MES定义TPD_FW为:' + TPD_FW + ',实际组装TPD_FW为:' + tpd_info_uut['FW'])
+                        if tpd_info_uut['0x'] == TPD_FW:
+                            print('TPD类型检查PASS!!!MES定义TPD_FW为:' + TPD_FW + ',实际组装TPD_FW为:' + tpd_info_uut['0x'])
                             copyfile(
                                 src=r'C:\WinTest\Tools\ElanFWVerReader.log',
                                 dst=r'C:\WinTest\LogFile' + '\\' + 'Check_TPD.log'
                             )
+                            json_tpd = {
+                                'TPD料号': tpd_info_list[0],
+                                'TPDVendor': tpd_info_list[1],
+                                'TPDFW=': tpd_info_list[2]
+                            }
+                            HWConfig['Config_TPD'] = json_tpd
                         else:
                             code = 'MBCF2'
-                            msg1 = 'TPD类型检查失败!!!MES定义TPD_FW为:' + TPD_FW + ',实际组装TPD_FW为:' + tpd_info_uut['FW']
+                            msg1 = 'TPD类型检查失败!!!MES定义TPD_FW为:' + TPD_FW + ',实际组装TPD_FW为:' + tpd_info_uut['0x']
                             print(msg1)
                             support.setmsg(
                                 Errorcode=code,
@@ -948,6 +981,10 @@ try:
                         date='此类机型下半身类型为DUCKN,无需KB类型检查!!!',
                         act='w'
                     )
+                    json_kb = {
+                        'KBTYPE': 'DOCKPN'
+                    }
+                    HWConfig['Config_KB'] = json_kb
                     result = 'pass'
                 elif CheckHW['HWConfig']['KB'] == 'YES':
                     print('haha')
@@ -960,6 +997,12 @@ try:
                         date='set KB_TYPE=%s' % kb_info_list[1],
                         act='w'
                     )
+                    json_kb = {
+                        'KB料号': kb_info_list[0],
+                        'KBTYPE': kb_info_list[1],
+                        'KBID': kb_info_list[2]
+                    }
+                    HWConfig['Config_KB'] = json_kb
                     result = 'pass'
 
                 else:
