@@ -72,10 +72,10 @@ try:
             lists=dictor['kill_lists']
         )
         # 获取BOX_TYPE
-        BOX_TYPE = 'TEST'
-        while BOX_TYPE == 'TEST':
+        BOX_TYPE = {}
+        while BOX_TYPE == {}:
             i = os.system("cls")
-            print('** TypeC_port3功能测试 ,将Port1和2保持空插 *******')
+            print('\n*** TypeC_port3功能测试 ,将Port1和2保持空插 *******')
             print('*** TypeC_port3功能测试 ,将Port1和2保持空插 *******')
             print('*** TypeC_port3功能测试 ,将Port1和2保持空插 *******')
             time.sleep(3)
@@ -152,7 +152,7 @@ try:
             else:
                 result = 'fail'
         else:
-            ex = Exception('FP_TYPE信息获取失败，请检查配置信息！！！')
+            ex = Exception('BOX_TYPE信息获取失败，请检查配置信息！！！')
             # 抛出异常对象
             raise ex
 

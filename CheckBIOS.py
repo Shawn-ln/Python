@@ -65,11 +65,11 @@ try:
 
             # 读取Model_ini.BAT中信息
             BIOSver = support.get_ini_info(
-                param='BIOSver'
+                param='BIOSVER'
             )
             print(BIOSver)
             ECver = support.get_ini_info(
-                param='ECver'
+                param='ECVER'
             )
             print(ECver)
             print('测试正文')
@@ -126,7 +126,7 @@ try:
                 )
                 support.flash_bios(
                     path=r'C:\WinTest\Tools',
-                    ver=BIOSver
+                    ver=BIOSver + '_SMT'
                 )
 
             # 判断测试结果

@@ -8,14 +8,14 @@ import os
 import time
 import support
 
-
+"""
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
     'FailRetrytimes': '0',
     'UPLIMIT': '9999.900',
     'LOWLIMIT': '-9999.900',
-    'RUNITEM': 'Touchpanel',
+    'RUNITEM': 'TouchPanel',
     'Errorcode': 'MBCF4',
     'tool_path': r'C:\WinTest\FFT\TouchPanel',
     'instruct': r'MultiTouch.exe',           # 多指测试
@@ -28,16 +28,22 @@ dictor = {
 support.write_json(
     data=dictor,
     path=r'C:\WinTest\JSON\data',
-    filename='Touchpanel.json'
+    filename='TouchPanel.json'
 )
-
+"""
 
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
-        filename='Touchpanel.json'
+        filename='TouchPanel.json'
     )
     print('dictor:', dictor)
+
+    LCD = support.read_json(
+        path=r'C:\WinTest\LogFile',
+        filename='HWConfig.json'
+    )['Config_LCD']['LCDTYPE']
+    print('LCD:', LCD)
 
     # 测试开始时间
     StartTime = support.titles(
@@ -55,12 +61,59 @@ try:
 
     # 测试正文
     for n in range(1, 200):
-
-        # 测试内容和结果
-        if BOX_TYPE == 'tycall':
-            print('aaa')
+        if LCD == 'NOTOUCH':
+            print('此配置为NOTOUCH，不需测试TouchPanel！！！')
+            result = 'pass'
+            support.writr_log(
+                path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                date='此配置为%s，不需测试TouchPanel！！！' % LCD,
+                act='w'
+            )
+        elif LCD == 'TOUCH':
+            multitouch = support.test(
+                tool_path=dictor['tool_path'],
+                act='find',
+                checklist='NO',
+                result_log_name=dictor['result_log_name'],
+                check_item=dictor['check_item'],
+                instruct=dictor['instruct'],
+                check_data=''
+            )
+            print('multitouch:', multitouch)
+            if multitouch:
+                print('多指测试PASS')
+                support.copy_log(
+                    source_path=r'%s\%s' % (dictor['tool_path'], dictor['result_log_name']),
+                    target_path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                    act='w'
+                )
+                touch = support.test(
+                    tool_path=dictor['tool_path'],
+                    act='find',
+                    checklist='NO',
+                    result_log_name=dictor['result_log_name1'],
+                    check_item=dictor['check_item1'],
+                    instruct=dictor['instruct1'],
+                    check_data=''
+                )
+                print('touch:', touch)
+                if touch:
+                    print('多指测试PASS')
+                    result = 'pass'
+                    support.copy_log(
+                        source_path=r'%s\%s' % (dictor['tool_path'], dictor['result_log_name1']),
+                        target_path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                        act='a'
+                    )
+                else:
+                    print('TouchPanel test fail')
+                    result = 'fail'
+            else:
+                print('多指测试FAIL')
+                result = 'fail'
         else:
-            ex = Exception('FP_TYPE信息获取失败，请检查配置信息！！！')
+            print('LCD Type获取失败，请检查配置信息！！！')
+            ex = Exception('LCD Type获取失败，请检查配置信息！！！')
             # 抛出异常对象
             raise ex
 

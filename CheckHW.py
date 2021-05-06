@@ -454,13 +454,13 @@ try:
                     check_item=ram_chk_list,
                     check_data=''
                 )
-                # print('ram_info_list', ram_info_list)
-                # print('ram_info_uut:', ram_info_uut)
+                print('ram_info_list', ram_info_list)
+                print('ram_info_uut:', ram_info_uut)
 
                 if ram_info_uut['Slot1_Vendor'] == ram_info_list[1]:
                     if ram_info_uut['RAMTotalSize'] == ram_info_list[2]:
-                        if ram_info_uut['Slot1_RAMFrequency'][0:4] == ram_info_list[3]:
-                            print('RAM类型RAMFrequency检查PASS!!!' + 'MES定义RAMFrequency为:' + ram_info_list[3] + ',实际组装RAMFrequency为:' + ram_info_uut['Slot1_RAMFrequency'][0:4])
+                        if ram_info_uut['Slot1_RAMFrequency'] == ram_info_list[3]:
+                            print('RAM类型RAMFrequency检查PASS!!!' + 'MES定义RAMFrequency为:' + ram_info_list[3] + ',实际组装RAMFrequency为:' + ram_info_uut['Slot1_RAMFrequency'])
                             print('RAM类型RAMTotalSize检查PASS!!!' + 'MES定义RAMTotalSize为:' + ram_info_list[2] + ',实际组装RAMTotalSize为:' + ram_info_uut['RAMTotalSize'])
                             print('RAM类型厂商检查PASS!!!' + 'MES定义RAM厂商类型为:' + ram_info_list[1] + ',实际组装RAM厂商类型为:' + ram_info_uut['Slot1_Vendor'])
                             copyfile(
@@ -527,8 +527,8 @@ try:
                     check_item=ssd_chk_list,
                     check_data=''
                 )
-                # print('ssd_info_uut:', ssd_info_uut)
-                # print('ssd_info_list:', ssd_info_list)
+                print('ssd_info_uut:', ssd_info_uut)
+                print('ssd_info_list:', ssd_info_list)
                 if ssd_info_uut['HDD1_MD'] == ssd_info_list[1]:
                     if ssd_info_uut['HDD1_FW'] == ssd_info_list[3]:
                         if ssd_info_uut['HDD1_SZ'] == ssd_info_list[2]:
@@ -570,7 +570,7 @@ try:
                         raise ex
                 else:
                     code = 'MBCF2'
-                    msg1 = 'HDD1_MD检查失败,MES定义HDD1_MD为:' + ssd_info_list[1] + ',实际组装CPU_Model类型为:' + ssd_info_uut['HDD1_MD']
+                    msg1 = 'HDD1_MD检查失败,MES定义HDD1_MD为:' + ssd_info_list[1] + ',实际组装HDD1_MD类型为:' + ssd_info_uut['HDD1_MD']
                     print(msg1)
                     support.setmsg(
                         Errorcode=code,
@@ -612,7 +612,7 @@ try:
                         'LCD类型': lcd_info_list[1],
                         'LCD厂商': lcd_info_list[3],
                         'LCDEDID': lcd_info_list[2],
-                        'LCD功能': lcd_info_list[4]
+                        'LCDTYPE': lcd_info_list[4]
                     }
                     HWConfig['Config_LCD'] = json_lcd
                 else:
@@ -897,7 +897,8 @@ try:
                             json_tpd = {
                                 'TPD料号': tpd_info_list[0],
                                 'TPDVendor': tpd_info_list[1],
-                                'TPDFW=': tpd_info_list[2]
+                                'TPDFW': tpd_info_list[2],
+                                'TPDTYPE': tpd_info_list[3]
                             }
                             HWConfig['Config_TPD'] = json_tpd
 
@@ -938,7 +939,8 @@ try:
                             json_tpd = {
                                 'TPD料号': tpd_info_list[0],
                                 'TPDVendor': tpd_info_list[1],
-                                'TPDFW=': tpd_info_list[2]
+                                'TPDFW': tpd_info_list[2],
+                                'TPDTYPE': tpd_info_list[3]
                             }
                             HWConfig['Config_TPD'] = json_tpd
                         else:
@@ -989,7 +991,7 @@ try:
                 elif CheckHW['HWConfig']['KB'] == 'YES':
                     print('haha')
                     kb_info = csv_info_list['kb_info_list']
-                    print('tpd_info:', kb_info)
+                    print('kb_info:', kb_info)
                     kb_info_list = kb_info.split(',')  # 用”,“将TPD信息分隔开
                     print('kb_info_list:', kb_info_list)
                     support.writr_log(

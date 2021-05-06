@@ -23,7 +23,7 @@ def flash_bios(path, ver):
     print(Chk_AC)
     if Chk_AC:
         os.chdir(path)
-        os.system('call %s_SMT.exe' % ver)
+        os.system('call %s.exe' % ver)
     else:
         ex = Exception('电源线|电池未接入不可升级BIOS，请接入电源线先后重试')
         # 抛出异常对象
@@ -34,7 +34,6 @@ def killer(lists):
     for i in lists:
         os.system('taskkill /f /im "%s" /t' % i)
     return True
-
 
 
 def write_json(data, path, filename):
@@ -49,6 +48,23 @@ def write_json(data, path, filename):
             ensure_ascii=False
         )
     return True
+
+
+def save_jsondata(save_name, save_param, get_param, get_path, splits, take_numbers):
+    if not get_path == 'NONE':
+        with open(get_path, 'r', encoding='utf-8', newline='') as f:
+            res = f.readlines()
+            print('res:', res)
+            for line in res:
+                if get_param in line:
+                    save_data = line.split(splits[0])[take_numbers[0]].split(splits[1])[take_numbers[1]].strip()
+        print('save_data:', save_data)
+        with open(save_name, 'a', encoding='utf-8', newline='') as f:
+            f.write(save_param + save_data)
+    else:
+        with open(save_name, 'a', encoding='utf-8', newline='') as f:
+            f.write(save_param + get_param)
+    return
 
 
 def del_log(log_path):
@@ -70,7 +86,6 @@ def FileLog(item):
         ex = Exception('Response.bat文件未找到！！！')
         # 抛出异常对象
         raise ex
-
     STAGE_CODE = 'MP'
     responselists = get_response_info(
         lists=['MODEL', 'Line', 'STATION', 'STATUS', 'SN', 'WO', 'Cust_PN'],
@@ -120,7 +135,7 @@ def FileLog(item):
             data = f.readlines()
             for line in data:
                 # print(line)
-                count = int(line[0:1]) + 1
+                count = int(line.strip()) + 1
     log_data.append('%s %s\n' % (date, time))
     log_data.append('[TESTITEM%s=%s]\n' % (count, item))
     for x in range(0, len(log_data)):
@@ -204,9 +219,10 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
         print('check_item:', check_item)
         result = dict()
         os.chdir(tool_path)
+        del_log(r'%s\%s' % (tool_path, result_log_name))
         res = os.system(instruct)
         if not os.path.exists(result_log_name):
-            ex = Exception(result_log_name + '不存在！！！')
+            ex = Exception(result_log_name + '不存在,请勿手动关闭测试窗口！！！')
             # 抛出异常对象
             raise ex
         print(instruct, res)
@@ -244,6 +260,7 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
 
     elif checklist == 'NO':
         os.chdir(tool_path)
+        del_log(r'%s\%s' % (tool_path, result_log_name))
         if act == 'write':
             with open(result_log_name, 'w', encoding='utf-8', newline='') as f:
                 if f.write(check_data) == 0:
@@ -251,7 +268,7 @@ def test(tool_path, result_log_name, checklist, act, check_item, instruct, check
             return False
         res = os.system(instruct)
         if not os.path.exists(result_log_name):
-            ex = Exception(result_log_name + '不存在！！！')
+            ex = Exception(result_log_name + '不存在,请勿手动关闭测试窗口！！！')
             # 抛出异常对象
             raise ex
         print(instruct, res)

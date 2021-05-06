@@ -7,7 +7,7 @@ import os
 import time
 import support
 
-
+"""
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
@@ -26,7 +26,7 @@ support.write_json(
     path=r'C:\WinTest\JSON\data',
     filename='DisplayLCD.json'
 )
-
+"""
 
 try:
     dictor = support.read_json(

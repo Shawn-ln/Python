@@ -43,6 +43,7 @@ support.write_json(
     filename='Type-C_Port1.json'
 )
 """
+
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
@@ -71,13 +72,13 @@ try:
             lists=dictor['kill_lists']
         )
         # 获取BOX_TYPE
-        BOX_TYPE = 'TEST'
-        while BOX_TYPE == 'TEST':
+        BOX_TYPE = {}
+        while BOX_TYPE == {}:
             i = os.system("cls")
-            print('** TypeC_port1功能测试 ,将Port2和3保持空插 *******')
+            print('\n*** TypeC_port1功能测试 ,将Port2和3保持空插 *******')
             print('*** TypeC_port1功能测试 ,将Port2和3保持空插 *******')
             print('*** TypeC_port1功能测试 ,将Port2和3保持空插 *******')
-            time.sleep(5)
+            time.sleep(3)
             BOX_TYPE = support.test(
                 tool_path=dictor['tool_path'],
                 act='match',
@@ -151,7 +152,7 @@ try:
             else:
                 result = 'fail'
         else:
-            ex = Exception('FP_TYPE信息获取失败，请检查配置信息！！！')
+            ex = Exception('BOX_TYPE信息获取失败，请检查配置信息！！！')
             # 抛出异常对象
             raise ex
 

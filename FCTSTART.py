@@ -4,7 +4,7 @@
 # Toolby: PyCharm
 import os
 import support
-
+"""
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
@@ -14,7 +14,7 @@ dictor = {
     'RUNITEM': 'FCTSTART',
     'Errorcode': 'MBCF4',
     'tool_path': 'C:\WinTest\Tools',
-    'instruct': 'ShowPassFail.exe',
+    'instruct': 'ShowPassFail.exe>FCTSTART.BAT',
     'result_log_name': 'FCTSTART.BAT',
     'check_item': ''
 }
@@ -23,20 +23,18 @@ support.write_json(
     path=r'C:\WinTest\JSON\data',
     filename='FCTSTART.json'
 )
-
+"""
 try:
-    FCTSTART = support.read_json(
+    dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
         filename='FCTSTART.json'
     )
-    print('FCTSTART:', FCTSTART)
+    print('FCTSTART:', dictor)
     # 测试开始时间
     StartTime = support.titles(
-        RUNITEM=FCTSTART['RUNITEM'],
+        RUNITEM=dictor['RUNITEM'],
         stage='start'
     )
-    for i in FCTSTART:
-        print(i + ' : ' + FCTSTART[i])
 
     # 脚本路径
     currentPath = os.getcwd()
@@ -46,123 +44,79 @@ try:
     # 读取主板写入的mbsn
     MB_SN = support.getMBSN()
 
-    # 判断是否有测试pass的log记录
-    if support.passlog(FCTSTART['RUNITEM']):
-        # creatResult
-        support.creatResult(
-            Fixed=currentPath,
-            ItemName=FCTSTART['RUNITEM'],
-            Result=1,
-            ItemTag=0
+    # 测试正文
+    for n in range(1, 200):
+        # 测试内容和结果
+
+
+        support.test(
+            tool_path=dictor['tool_path'],
+            act='read',
+            checklist='NO',
+            result_log_name=dictor['result_log_name'],
+            check_item=dictor['check_item'],
+            instruct=dictor['instruct'],
+            check_data=''
         )
-    else:
-        # 测试正文
-        for n in range(1, 200):
-            # 测试内容和结果
+        result = 'pass'
 
 
-            chkec = support.test(
-                tool_path=FCTSTART['tool_path'],
-                act='read',
-                checklist='NO',
-                result_log_name=FCTSTART['result_log_name1'],
-                check_item=FCTSTART['check_item1'],
-                instruct=FCTSTART['instruct1'],
-                check_data=‘
+        # 判断测试结果
+        if result == 'fail':
+            Errorcode = 'FCTSTART fail'
+            if support.judge(
+                    FailRetry=dictor['FailRetry'],
+                    FailRetrytimes=dictor['FailRetrytimes']
+            ):
+                dictor['FailRetry'] = str(int(dictor['FailRetry']) + 1)
+                print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
+                continue
+
+            # creatResult
+            support.creatResult(
+                Fixed=currentPath,
+                ItemName=dictor['RUNITEM'],
+                Result=-1,
+                ItemTag=0
             )
-            chkec = FCTSTART[0:2] + chkec[2:]
-            Errorcode = '.'
-            result = 'fail'
-            if chkbios == BIOSver:
-                print('BIOS版本检查PASS，MES定义BIOSVer为%s,实际查询BIOSVer为%s' % (BIOSver, chkbios))
-                support.writr_log(
-                    path=r'C:\WinTest\LogFile\Check_ECBIOS.log',
-                    date='BIOS版本检查PASS，MES定义BIOSVer为%s,实际查询BIOSVer为%s' % (BIOSver, chkbios),
-                    act='w'
-                )
-                support.writr_log(
-                    path=r'C:\WinTest\FailLog\%s.log' % CheckBIOS['RUNITEM'],
-                    date=BIOSver + '\n',
-                    act='a'
-                )
-                if chkec == ECver:
-                    result = 'pass'
-                    print('EC版本检查PASS，MES定义ECVer为%s,实际查询ECVer为%s' % (ECver, chkec))
-                    support.writr_log(
-                    path=r'C:\WinTest\FailLog\%s.log' % CheckBIOS['RUNITEM'],
-                        date=ECver + '\n',
-                        act='a'
-                    )
-                else:
-                    Errorcode = 'HS946'
-                    result = 'fail'
-            else:
-                print('begin to flash %s BIOS at %s' % (BIOSver, StartTime))
-                support.writr_log(
-                    path=r'C:\WinTest\FailLog\%s.log' % CheckBIOS['RUNITEM'],
-                    date='begin to flash %s BIOS at %s' % (BIOSver, StartTime) + '\n',
-                    act='w'
-                )
-                support.flash_bios(
-                    path=r'C:\WinTest\Tools',
-                    ver=BIOSver
-                )
+            # setinfo
+            support.setinfo(
+                RUNITEM=dictor['RUNITEM'],
+                SN=MB_SN,
+                Result='F',
+                NUM='0',
+                LOGINFO=dictor['RUNITEM'] + ' Fail',
+                Starttime=StartTime
+            )
+            print('测试循环次数:', n, '，测试结果：fail！！！！')
+            support.message(
+                Code=Errorcode
+            )
+            break
 
-            # 判断测试结果
-            if result == 'fail':
-                if support.judge(
-                        FailRetry=CheckBIOS['FailRetry'],
-                        FailRetrytimes=CheckBIOS['FailRetrytimes']
-                ):
-                    CheckBIOS['FailRetry'] = str(int(CheckBIOS['FailRetry']) + 1)
-                    print('测试循环次数：' + CheckBIOS['FailRetry'], '，测试结果：fail！！！')
-                    continue
+        elif result == 'pass':
+            print('测试循环次数:', n, '，测试结果：pass！！！')
+            print('测试SN:', MB_SN)
+            # creatResult
+            support.creatResult(
+                Fixed=currentPath,
+                ItemName=dictor['RUNITEM'],
+                Result=1,
+                ItemTag=0
+            )
+            # setinfo
+            support.setinfo(
+                RUNITEM=dictor['RUNITEM'],
+                SN=MB_SN,
+                Result='P',
+                NUM='1',
+                LOGINFO=dictor['RUNITEM'] + ' Pass',
+                Starttime=StartTime
+            )
+            break
 
-                # creatResult
-                support.creatResult(
-                    Fixed=currentPath,
-                    ItemName=CheckBIOS['RUNITEM'],
-                    Result=-1,
-                    ItemTag=0
-                )
-                # setinfo
-                support.setinfo(
-                    RUNITEM=CheckBIOS['RUNITEM'],
-                    SN=MB_SN,
-                    Result='F',
-                    NUM='0',
-                    LOGINFO=CheckBIOS['RUNITEM'] + ' Fail',
-                    Starttime=StartTime
-                )
-                print('测试循环次数:', n, '，测试结果：fail！！！！')
-                support.message(
-                    Code=Errorcode
-                )
-                break
-
-            elif result == 'pass':
-                print('测试循环次数:', n, '，测试结果：pass！！！')
-                print('测试SN:', MB_SN)
-                # creatResult
-                support.creatResult(
-                    Fixed=currentPath,
-                    ItemName=CheckBIOS['RUNITEM'],
-                    Result=1,
-                    ItemTag=0
-                )
-                # setinfo
-                support.setinfo(
-                    RUNITEM=CheckBIOS['RUNITEM'],
-                    SN=MB_SN,
-                    Result='P',
-                    NUM='1',
-                    LOGINFO=CheckBIOS['RUNITEM'] + ' Pass',
-                    Starttime=StartTime
-                )
-                break
-
-            else:
-                print('无测试结果！！！')
+        else:
+            print('无测试结果！！！')
 
 
 except AttributeError as e:

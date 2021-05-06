@@ -5,7 +5,7 @@
 
 import os
 import support
-
+"""
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
@@ -15,16 +15,16 @@ dictor = {
     'RUNITEM': 'GsensorTest',
     'Errorcode': 'MBCF4',
     'tool_path': r'C:\WinTest\FFT\Sensors',
-    'instruct': 'GSensorTest.exe',
-    'result_log_name': 'GSensorTest.txt',
-    'check_item': 'Operation succeeded'
+    'instruct': 'OneGSensor.exe',
+    'result_log_name': 'Result.log',
+    'check_item': 'RESULT=PASS'
 }
 support.write_json(
     data=dictor,
     path=r'C:\WinTest\JSON\data',
     filename='GSensorTest.json'
 )
-
+"""
 
 try:
     dictor = support.read_json(

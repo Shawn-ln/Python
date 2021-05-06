@@ -8,6 +8,7 @@ from pip._vendor.colorama import Fore
 
 import support
 
+"""
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
@@ -20,8 +21,19 @@ dictor = {
     'tool_path': r'C:\WinTest\Tools',
     'result_log_name': 'checkuuid.txt'
 }
+support.write_json(
+    data=dictor,
+    path=r'C:\WinTest\JSON\data',
+    filename='WriteUUID.json'
+)
+"""
 
 try:
+    dictor = support.read_json(
+        path=r'C:\WinTest\JSON\data',
+        filename='WriteUUID.json'
+    )
+    print('dictor:', dictor)
     # 测试开始时间
     StartTime = support.titles(
         RUNITEM=dictor['RUNITEM'],

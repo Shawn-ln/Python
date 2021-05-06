@@ -8,7 +8,7 @@ import os
 import time
 import support
 
-
+"""
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
@@ -28,7 +28,7 @@ support.write_json(
     path=r'C:\WinTest\JSON\data',
     filename='Int_Mic.json'
 )
-
+"""
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
@@ -78,50 +78,51 @@ try:
                 instruct=r'GetJDStatus.exe 21 >JDSTATUS.LOG',
                 check_data=''
             )
+        support.copy_log(
+            source_path=r'%s\JDSTATUS.LOG' % dictor['tool_path'],
+            target_path=r'C:\WinTest\LogFile\%s.log' % (dictor['RUNITEM']),
+            act='w'
+        )
+        # print('JDSTATUS:', JDSTATUS)
+        os.system('start Playback.exe')
+        os.system('Recode.exe')
+        os.system('AnalyseSNR.exe')
+        rst = support.test(
+            tool_path=dictor['tool_path'],
+            act='find',
+            checklist='NO',
+            result_log_name=dictor['result_log_name'],
+            check_item=dictor['check_item'],
+            instruct=dictor['instruct'],
+            check_data=''
+        )
+        print(rst)
+        if rst:
+            print('********************内部麦克风测试PASS*********************')
+            result = 'pass'
             support.copy_log(
-                source_path=r'%s\JDSTATUS.LOG' % dictor['tool_path'],
-                target_path=r'C:\WinTest\LogFile\%s.log' % (dictor['RUNITEM']),
+                source_path=r'%s\all.txt' % (dictor['tool_path']),
+                target_path=r'%s\Internal_Mic_data.log' % (dictor['tool_path']),
                 act='w'
             )
-            # print('JDSTATUS:', JDSTATUS)
-            os.system('start Playback.exe')
-            os.system('Recode.exe')
-            os.system('AnalyseSNR.exe')
-            rst = support.test(
-                tool_path=dictor['tool_path'],
-                act='find',
-                checklist='NO',
-                result_log_name=dictor['result_log_name'],
-                check_item=dictor['check_item'],
-                instruct=dictor['instruct'],
-                check_data=''
+
+            support.copy_log(
+                source_path=r'%s\all.txt' % dictor['tool_path'],
+                target_path=r'C:\WinTest\LogFile\%s.log' % (dictor['RUNITEM']),
+                act='a'
             )
-            print(rst)
-            if rst:
-                support.copy_log(
-                    source_path=r'%s\all.txt' % (dictor['tool_path']),
-                    target_path=r'%s\Internal_Mic_data.log' % (dictor['tool_path']),
-                    act='w'
-                )
-
-                support.copy_log(
-                    source_path=r'%s\all.txt' % dictor['tool_path'],
-                    target_path=r'C:\WinTest\LogFile\%s.log' % (dictor['RUNITEM']),
-                    act='a'
-                )
-                support.copy_log(
-                    source_path=r'%s\Internal_Mic_result.log' % dictor['tool_path'],
-                    target_path=r'C:\WinTest\LogFile\%s.log' % (dictor['RUNITEM']),
-                    act='a'
-                )
-                support.copyfile(
-                    src=r'%s\testAudio.wav' % dictor['tool_path'],
-                    dst=r'C:\WinTest\Log\%s.wav' % dictor['RUNITEM']
-                )
-
-
-        result = 'fail'
-
+            support.copy_log(
+                source_path=r'%s\Internal_Mic_result.log' % dictor['tool_path'],
+                target_path=r'C:\WinTest\LogFile\%s.log' % (dictor['RUNITEM']),
+                act='a'
+            )
+            support.copyfile(
+                src=r'%s\testAudio.wav' % dictor['tool_path'],
+                dst=r'C:\WinTest\Log\%s.wav' % dictor['RUNITEM']
+            )
+        else:
+            print('********************内部麦克风测试FAIL*********************')
+            result = 'fail'
 
         # 判断测试结果
         if result == 'fail':

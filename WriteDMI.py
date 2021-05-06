@@ -107,6 +107,10 @@ try:
                 RequestFilePath=dictor['dictor']['RFP'],
                 SN=MB_SN
             )
+            support.copyfile(
+                src=r'C:\WinTest\Tools\Response.bat',
+                dst=r'C:\WinTest\LogFile\Response.bat'
+            )
             # Write DMI
             get_response_info_list = dictor['check_info']['get_response_info_list']
             get_response_info_data = dictor['check_info']['get_response_info_data']
@@ -193,6 +197,16 @@ try:
                 break
             elif result:
                 result = 'pass'
+                support.writr_log(
+                    path=r'C:\WinTest\FFT\Int-Audio\SN.TXT',
+                    date='Serial Number = 0x04 : "%s"' % response_info_list['ln'],
+                    act='w'
+                )
+                support.writr_log(
+                    path=r'C:\WinTest\FFT\DisplayLCD\SN.TXT',
+                    date='Serial Number = 0x04 : "%s"' % response_info_list['ln'],
+                    act='w'
+                )
             else:
                 ex = Exception('DMI Check 结果异常！！！', result)
                 # 抛出异常对象
