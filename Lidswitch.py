@@ -29,6 +29,16 @@ try:
     # 测试正文
     for n in range(1, 200):
         # 测试内容和结果
+        enableLid = support.test(
+            tool_path=dictor['tool_path'],
+            act='find',
+            checklist='NO',
+            result_log_name=dictor['result_log_name1'],
+            check_item=dictor['check_item1'],
+            instruct=dictor['instruct1'],
+            check_data=''
+        )
+        print('enableLid:', enableLid)
 
         print('测试正文')
         LID = support.test(
@@ -38,7 +48,7 @@ try:
             result_log_name=dictor['result_log_name2'],
             check_item=dictor['check_item2'],
             instruct=dictor['instruct2'],
-            check_data='PASS'
+            check_data=''
         )
         Errorcode = '.'
         print('LID:', LID)
@@ -52,6 +62,17 @@ try:
         else:
             Errorcode = 'MBCF4'
             result = 'fail'
+
+        disableLid = support.test(
+            tool_path=dictor['tool_path'],
+            act='find',
+            checklist='NO',
+            result_log_name=dictor['result_log_name3'],
+            check_item=dictor['check_item3'],
+            instruct=dictor['instruct3'],
+            check_data=''
+        )
+        print('disableLid:', disableLid)
 
         # 判断测试结果
         if result == 'fail':
@@ -113,8 +134,10 @@ try:
 
 
 except AttributeError as e:
-    print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
+    print(e)
+    support.message_showinfo('ERROR', e)
 
 except Exception as e:
     print(e)
+    support.message_showinfo('ERROR', e)

@@ -6,7 +6,7 @@
 import os
 import support
 
-
+"""
 # 开头模板信息
 dictor = {
     'FailRetry': '0',
@@ -30,7 +30,7 @@ support.write_json(
     path=r'C:\WinTest\JSON\data',
     filename='CheckHDDConut.json'
 )
-
+"""
 
 try:
     dictor = support.read_json(
@@ -152,8 +152,10 @@ try:
 
 
 except AttributeError as e:
-    print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
+    print(e)
+    support.message_showinfo('ERROR', e)
 
 except Exception as e:
     print(e)
+    support.message_showinfo('ERROR', e)

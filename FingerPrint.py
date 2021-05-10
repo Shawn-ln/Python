@@ -5,6 +5,7 @@
 
 import os
 import support
+
 """
 # 开头模板信息
 dictor = {
@@ -25,11 +26,17 @@ dictor = {
     'instruct_Goodix': 'GFMPTest.exe',
     'result_log_name_Goodix': 'customer.log',
     'check_item_Goodix': 'PASS',
-    'FP_TYPE_list': [r'Synaptics WBDI', r'USB\VID_06CB&PID_00BE', r'USB\VID_27C6&PID_55A2', r'USB\VID_13D3&PID_5419&MI_00'],
+    'tool_path_ELAN': r'C:\WinTest\FFT\FPTest\Elan_FingerPrint',
+    'instruct_ELAN': r'"eFSAX System Test Manager.exe"',
+    'result_log_name_ELAN': 'Result.txt',
+    'check_item_ELAN': 'PASS',
+    'FP_TYPE_list': [r'Synaptics WBDI', r'USB\VID_06CB&PID_00BE', r'USB\VID_27C6&PID_55A2', r'USB\VID_04F3&PID_0C4D', r'ELAN WBF Fingerprint Sensor', r'USB\VID_13D3&PID_5419&MI_00'],
     'FP_TYPE': {
         r'Synaptics WBDI': 'Synaptics',
         r'USB\VID_06CB&PID_00BE': 'Synaptics',
         r'USB\VID_27C6&PID_55A2': 'Goodix',
+        r'USB\VID_04F3&PID_0C4D': 'ELAN',
+        r'ELAN WBF Fingerprint Sensor': 'ELAN',
         r'USB\VID_13D3&PID_5419&MI_00': 'TEST'
     }
 }
@@ -39,6 +46,7 @@ support.write_json(
     filename='FingerPrint.json'
 )
 """
+
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
@@ -96,6 +104,28 @@ try:
                 )
             else:
                 result = 'fail'
+
+        if FP_TYPE == 'ELAN':
+            print('指纹厂商为ELAN，即将进行指纹测试！！！')
+            test_result = support.test(
+                tool_path=dictor['tool_path_ELAN'],
+                act='find',
+                checklist='NO',
+                result_log_name=dictor['result_log_name_ELAN'],
+                check_item=dictor['check_item_ELAN'],
+                instruct=dictor['instruct_ELAN'],
+                check_data=''
+            )
+            if test_result:
+                result = 'pass'
+                support.copy_log(
+                    source_path=r'%s\%s' % (dictor['tool_path_ELAN'], dictor['result_log_name_ELAN']),
+                    target_path=r'C:\WinTest\LogFile\%s.log' % dictor['RUNITEM'],
+                    act='a'
+                )
+            else:
+                result = 'fail'
+
         elif FP_TYPE == 'Goodix':
             print('指纹厂商为Goodix，即将进行指纹测试！！！')
             test_result = support.test(
@@ -181,8 +211,10 @@ try:
 
 
 except AttributeError as e:
-    print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
+    print(e)
+    support.message_showinfo('ERROR', e)
 
 except Exception as e:
     print(e)
+    support.message_showinfo('ERROR', e)

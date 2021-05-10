@@ -4,6 +4,7 @@
 # Toolby: PyCharm
 import os
 import support
+
 """
 # 开头模板信息
 dictor = {
@@ -11,7 +12,7 @@ dictor = {
     'FailRetrytimes': '1',
     'UPLIMIT': '9999.900',
     'LOWLIMIT': '-9999.900',
-    'RUNITEM': 'FCTSTART',
+    'RUNITEM': 'FCTStart',
     'Errorcode': 'MBCF4',
     'tool_path': 'C:\WinTest\Tools',
     'instruct': 'ShowPassFail.exe>FCTSTART.BAT',
@@ -24,6 +25,7 @@ support.write_json(
     filename='FCTSTART.json'
 )
 """
+
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
@@ -118,10 +120,11 @@ try:
         else:
             print('无测试结果！！！')
 
-
 except AttributeError as e:
-    print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
+    print(e)
+    support.message_showinfo('ERROR', e)
 
 except Exception as e:
     print(e)
+    support.message_showinfo('ERROR', e)

@@ -20,6 +20,7 @@ dictor = {
     'check_item_fan1': ['Fan1 Debug Speed Set Successful', 'Fan1 Speed Test PASS! Min:'],
     'check_item_fan2': ['Fan2 Debug Speed Set Successful', 'Fan2 Speed Test PASS! Min:'],
     'result_log_name': 'FanTest.log',
+    'waittime': [20, 25, 30],
     'instruct': {
         'low': 3000,
         'mid': 4300,
@@ -33,6 +34,7 @@ support.write_json(
     filename='FanTest.json'
 )
 """
+
 dictor = support.read_json(
     path=r'C:\WinTest\JSON\data',
     filename='FanTest.json'
@@ -73,7 +75,7 @@ try:
             check_data=''
         )
         print('fan1_low:', fan1_low)
-        time.sleep(18)
+        time.sleep(dictor['waittime'][0])
         fan1_speed = support.test(
             tool_path=dictor['tool_path'],
             act='find',
@@ -119,7 +121,7 @@ try:
                 instruct='FAN.EXE -A %s' % dictor['instruct']['low'],
                 check_data=''
             )
-            time.sleep(12)
+            time.sleep(dictor['waittime'][0])
             fan2_speed = support.test(
                 tool_path=dictor['tool_path'],
                 act='find',
@@ -169,7 +171,7 @@ try:
             check_data=''
         )
         print('fan1_mid:', fan1_mid)
-        time.sleep(18)
+        time.sleep(dictor['waittime'][1])
         fan1_speed = support.test(
             tool_path=dictor['tool_path'],
             act='find',
@@ -209,7 +211,7 @@ try:
                 check_data=''
             )
             print('fan2_mid:', fan2_mid)
-            time.sleep(18)
+            time.sleep(dictor['waittime'][1])
             fan2_speed = support.test(
                 tool_path=dictor['tool_path'],
                 act='find',
@@ -252,7 +254,7 @@ try:
             check_data=''
         )
         print('fan1_high:', fan1_high)
-        time.sleep(20)
+        time.sleep(dictor['waittime'][2])
         fan1_speed = support.test(
             tool_path=dictor['tool_path'],
             act='find',
@@ -300,7 +302,7 @@ try:
                 check_data=''
             )
             print('fan2_high:', fan2_high)
-            time.sleep(20)
+            time.sleep(dictor['waittime'][2])
             fan2_speed = support.test(
                 tool_path=dictor['tool_path'],
                 act='find',
@@ -357,6 +359,7 @@ try:
 
         # 判断测试结果
         if result == 'fail':
+            os.system(r'%s\%s' % (dictor['tool_path'], dictor['instruct']['exit']))
             if support.judge(FailRetry=dictor['FailRetry'], FailRetrytimes=dictor['FailRetrytimes']):
                 dictor['FailRetry'] = str(int(dictor['FailRetry']) + 1)
                 print('测试循环次数：' + dictor['FailRetry'], '，测试结果：fail！！！')
@@ -385,6 +388,7 @@ try:
             break
 
         elif result == 'pass':
+            os.system(r'%s\%s' % (dictor['tool_path'], dictor['instruct']['exit']))
             # os.system(r'call \WinTest\tools\FileLog.cmd \WinTest\LogFile\%s.log' % dictor['RUNITEM'])
             support.FileLog(item=dictor['RUNITEM'])
             print('测试循环次数:', n, '，测试结果：pass！！！')
@@ -410,12 +414,13 @@ try:
         else:
             print('无测试结果！！！')
 
-
 except AttributeError as e:
     os.system(r'%s\%s' % (dictor['tool_path'], dictor['instruct']['exit']))
-    print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
+    print(e)
+    support.message_showinfo('ERROR', e)
 
 except Exception as e:
     os.system(r'%s\%s' % (dictor['tool_path'], dictor['instruct']['exit']))
     print(e)
+    support.message_showinfo('ERROR', e)

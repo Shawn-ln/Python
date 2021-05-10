@@ -6,6 +6,8 @@
 import os
 import re
 import datetime
+import tkinter
+from tkinter import messagebox
 from shutil import copyfile
 import json
 
@@ -380,9 +382,23 @@ def get_csv_info(log_name_list, param_list, data_list):
     # raise ex
 
 
+def message_showinfo(message_type, message_data):
+    top = tkinter.Tk()  # *********
+    top.withdraw()      # ****实现主窗口隐藏
+    top.update()        # *********需要update一下
+    messagebox.showinfo(message_type, message_data)
+    top.destroy()
+    return
+
+
 def get_response_info(lists, date):
     os.chdir(r'C:\WinTest\Tools')
     log_name = 'Response.bat'
+    if not os.path.exists(r'C:\WinTest\Tools/%s' % log_name):
+        copyfile(
+            src=r'C:\WinTest\LogFile/%s' % log_name,
+            dst=r'C:\WinTest\Tools/%s' % log_name
+        )
     result = dict()
     for i in range(0, len(lists)):
         if not os.path.exists(r'C:\WinTest\Tools\%s' % log_name):

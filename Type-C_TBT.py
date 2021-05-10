@@ -8,6 +8,7 @@ import time
 
 import support
 
+
 """
 # 开头模板信息
 dictor = {
@@ -15,7 +16,7 @@ dictor = {
     'FailRetrytimes': '0',
     'UPLIMIT': '9999.900',
     'LOWLIMIT': '-9999.900',
-    'RUNITEM': 'Type-C_TBT',
+    'RUNITEM': 'Type-C_TBT1',
     'Errorcode': 'MBCF4',
     'tool_path': r'C:\Program Files\Intel Corporation\TDT\tdt utils',
     'instruct': r'DMA_traffic_test.exe -host_device YFL1 -link1 >th1.log',
@@ -29,6 +30,7 @@ support.write_json(
     filename='Type-C_TBT.json'
 )
 """
+
 try:
     dictor = support.read_json(
         path=r'C:\WinTest\JSON\data',
@@ -143,8 +145,10 @@ try:
 
 
 except AttributeError as e:
-    print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
+    print(e)
+    support.message_showinfo('ERROR', e)
 
 except Exception as e:
     print(e)
+    support.message_showinfo('ERROR', e)

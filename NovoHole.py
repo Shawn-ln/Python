@@ -47,6 +47,7 @@ try:
 
     # 读取主板写入的mbsn
     MB_SN = support.getSN()
+    result = 'fail'
 
     # 测试正文
     for n in range(1, 200):
@@ -147,8 +148,10 @@ try:
 
 
 except AttributeError as e:
-    print(e)
     print("SN匹配信息错误，请检查正则表达式！！！")
+    print(e)
+    support.message_showinfo('ERROR', e)
 
 except Exception as e:
     print(e)
+    support.message_showinfo('ERROR', e)
